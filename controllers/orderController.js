@@ -127,10 +127,71 @@ const getOerderByVendor=async(req,res)=>{
 const getOerderByUser=async(req,res)=>{
     try{
         const {userId}=req.params;
-        const result=await order.find({userId:userId});
+        const orders = await order.find({userId:userId ,paymentStatus:'success' }).lean();
+
+        const userIds = [...new Set(orders.map(order => order.userId))];
+        const shopIds = [...new Set(orders.map(order => order.shopId))];
+        const speciesIds = [...new Set(orders.flatMap(order => order.species.map(s => s.speciesId)))];
+        const extensionIds = [...new Set(orders.flatMap(order => order.extensions.map(e => e.extensionId)))];
+
+        // Fetch users, shops, species, and extensions
+        const [users, shops, speciesD, extensionsD] = await Promise.all([
+            user.find({ _id: { $in: userIds } }).select('name email').lean(),
+            shop.find({ _id: { $in: shopIds } }).select('shopName address').lean(),
+            species.find({ _id: { $in: speciesIds } }).select('speciesId speciesImage speciesName').lean(), 
+            extension.find({ _id: { $in: extensionIds } }).select('extensionId image extensionName').lean() 
+        ]);
+
+        const userMap = users.reduce((acc, user) => {
+            acc[user._id] = user;
+            return acc;
+        }, {});
+
+        const shopMap = shops.reduce((acc, shop) => {
+            acc[shop._id] = shop;
+            return acc;
+        }, {});
+
+        const speciesMap = speciesD.reduce((acc, specie) => {
+            acc[specie._id] = specie;
+            return acc;
+        }, {});
+
+        const extensionMap = extensionsD.reduce((acc, extension) => {
+            acc[extension._id] = extension;
+            return acc;
+        }, {});
+
+        const detailedOrders = orders.map(order => ({
+            orderId: order._id,
+            userId: order.userId,
+            userName: userMap[order.userId]?.name || 'N/A',
+            userEmail: userMap[order.userId]?.email || 'N/A',
+            shopId: order.shopId,
+            shopName: shopMap[order.shopId]?.shopName || 'N/A',
+            shopAddress: shopMap[order.shopId]?.address || 'N/A',
+            vendorId: order.vendorId,
+            species: order.species.map(species => ({
+                speciesId: species.speciesId,
+                speciesName: speciesMap[species.speciesId]?.speciesName || 'N/A',
+                speciesPrice: species.speciesPrice,
+                image: speciesMap[species.speciesId]?.speciesImage || 'N/A' 
+            })),
+            extensions: order.extensions.map(extension => ({
+                extensionId: extension.extensionId,
+                extensionName: extensionMap[extension.extensionId]?.extensionName || 'N/A',
+                price: extension.price,
+                image: extensionMap[extension.extensionId]?.image || 'N/A'
+            })),
+            orderDate: order.orderDate,
+            status: order.paymentStatus,
+            totalAmount: order.totalAmount,
+            bookingId: order.bookingId
+        }));
+
         res.json({
             status:200,
-            data:result,
+            data:detailedOrders,
             msg:"ordered list"
         })
     }catch(error){
