@@ -43,10 +43,10 @@ const getSpeciesById=async(req,res)=>{
       data:result
     })
   }catch(error){
-    res.json({
-      status:500,
-      msg:error.message
-    })
+    res.status(500).json({
+      status: 500,
+      error: err.message
+    });
   }
 }
 
@@ -59,10 +59,10 @@ const deleteSpecies=async(req,res)=>{
       msg: "Species deleted successfully"
     });
   }catch(error){
-    res.json({
-      status:500,
-      msg:error.message
-    })
+    res.status(500).json({
+      status: 500,
+      error: err.message
+    });
   }
 }
 module.exports = {

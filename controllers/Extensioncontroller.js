@@ -47,10 +47,10 @@ const getExtension=async(req,res)=>{
     })
 
   }catch(error){
-    res.json({
-      status:500,
-      msg:error.message
-    })
+    res.status(500).json({
+      status: 500,
+      error: err.message
+    });
   }
 }
 
@@ -63,10 +63,10 @@ const deleteExtension=async(req,res)=>{
       msg: "Extension deleted successfully"
     });
   }catch(error){
-    res.json({
-      status:500,
-      msg:error.message
-    })
+    res.status(500).json({
+      status: 500,
+      error: err.message
+    });
   }
 }
 
@@ -83,10 +83,10 @@ const editExtension=async(req,res)=>{
       msg:"Extension updated successFully"
     })
   }catch(error){
-    res.json({
-      status:500,
-      msg:error.message
-    })
+    res.status(500).json({
+      status: 500,
+      error: err.message
+    });
   }
 }
 

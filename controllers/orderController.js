@@ -39,9 +39,9 @@ const createOrder=async(req,res)=>{
             bookingId: bookingId
         });
     } catch (error) {
-        res.json({
+        res.status(500).json({
             status: 500,
-            msg: error.message
+            error: err.message
         });
     }
 }
@@ -117,10 +117,10 @@ const getOerderByVendor=async(req,res)=>{
             msg: "All orders fetched successfully"
         });
     }catch(error){
-        res.json({
-            status:500,
-            msg:error.message
-        })
+        res.status(500).json({
+            status: 500,
+            error: err.message
+        });
     }
 }
 
@@ -134,10 +134,10 @@ const getOerderByUser=async(req,res)=>{
             msg:"ordered list"
         })
     }catch(error){
-        res.json({
-            status:500,
-            msg:error.message
-        })
+        res.status(500).json({
+            status: 500,
+            error: err.message
+        });
     }
 }
 

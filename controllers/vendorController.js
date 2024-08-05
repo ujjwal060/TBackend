@@ -19,7 +19,10 @@ const getVendor = async (req, res) => {
       data: result
     })
   } catch (error) {
-    res.status(500).send("error");
+    res.status(500).json({
+      status: 500,
+      error: err.message
+  });
   }
 }
 
@@ -91,10 +94,10 @@ const viewProfile=async(req,res)=>{
           data:result
       })    
   }catch(error){
-      res.json({
-    status:500,
-    msg:error.message
-  })
+    res.status(500).json({
+      status: 500,
+      error: err.message
+  });
   }
 }
 
@@ -113,10 +116,10 @@ const editProfile=async(req,res)=>{
           data:result
       })    
   }catch(error){
-      res.json({
-          status:500,
-          msg:error.message
-      })
+    res.status(500).json({
+      status: 500,
+      error: err.message
+  });
   }
 }
 
@@ -142,10 +145,10 @@ const changePassword=async(req,res)=>{
           msg:"Password changed successfully"
       })
   }catch(error){
-      res.json({
-          status:500,
-          msg:error.message
-      })
+    res.status(500).json({
+      status: 500,
+      error: err.message
+  });
   }
 }
 

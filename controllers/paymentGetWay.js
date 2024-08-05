@@ -40,10 +40,10 @@ const payment = async (req, res) => {
       }
     })
   } catch (err) {
-    res.json({
-      status:500,
+    res.status(500).json({
+      status: 500,
       error: err.message
-    })
+    });
   }
 };
 
