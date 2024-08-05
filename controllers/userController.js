@@ -12,7 +12,7 @@ const viewProfile=async(req,res)=>{
             data:result
         })    
     }catch(error){
-        res.stres.json({
+        res.json({
       status:500,
       msg:error.message
     })
@@ -27,14 +27,14 @@ const editProfile=async(req,res)=>{
             { ...req.body },
             { new: true, runValidators: true }
         );
-        if (!user) return res.status(404).send('User not found');
+        if (!result) return res.status(404).send('User not found');
         res.json({
             status:200,
             msg:"Updated....!!",
             data:result
         })    
     }catch(error){
-        res.stres.json({
+        res.json({
             status:500,
             msg:error.message
         })
@@ -58,12 +58,12 @@ const changePassword=async(req,res)=>{
         user.password = hashedPassword;
     
         await users.save();
-        res.stres.json({
+        res.json({
             status:200,
             msg:"Password changed successfully"
         })
     }catch(error){
-        res.stres.json({
+        res.json({
             status:500,
             msg:error.message
         })
