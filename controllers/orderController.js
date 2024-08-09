@@ -4,6 +4,7 @@ const user=require('../models/Authmodel')
 const species=require('../models/SpeciesSelectmodel')
 const extension=require('../models/Extensionmodel')
 const shortid = require('shortid');
+const nodemailer = require('nodemailer');
 
 
 const createOrder=async(req,res)=>{
@@ -49,7 +50,7 @@ const createOrder=async(req,res)=>{
 const getOerderByVendor=async(req,res)=>{
     try{
         const { vendorId } = req.params;
-        const orders = await order.find({ vendorId: vendorId ,paymentStatus:'success' }).lean();
+        const orders = await order.find({ vendorId: vendorId ,paymentStatus:'success',status:'pending' }).lean();
 
         const userIds = [...new Set(orders.map(order => order.userId))];
         const shopIds = [...new Set(orders.map(order => order.shopId))];
@@ -274,4 +275,70 @@ const getOrderbyId=async(req,res)=>{
         });
     }
 }
-module.exports={createOrder,getOerderByVendor ,getOerderByUser,getOrderbyId}
+
+const orderConfirm=async(req,res)=>{
+    try{
+        const {id}=req.params;
+        const result = await order.findByIdAndUpdate(id, { status: 'confirmed' }, { new: true });
+        const userData = await user.findById(result.userId);
+        await sendConfirmationEmail(result, userData);
+        res.status(200).json({ 
+            status:200,
+            message: 'Order confirmed and email sent', 
+            result });
+    }catch(error){
+        res.status(500).json({
+            status:500,
+            error:error.message
+        })
+    }
+}
+
+const sendConfirmationEmail=async(order, user)=>{
+    try {
+        let transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS 
+            }
+        });
+
+        const mailContent = `
+            Dear ${user.name},
+
+            Your order with ID ${order._id} has been confirmed. Here are the details of your order:
+
+            Order Date: ${order.orderDate.toDateString()}
+            Payment Status: ${order.paymentStatus}
+            Total Amount: $${order.totalAmount}
+            Booking ID: ${order.bookingId}
+
+            Thank you for shopping with us!
+
+            Best regards,
+            Your Shop Team
+        `;
+
+        let mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: user.email,
+            subject: 'Order Confirmation',
+            text: mailContent
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log('Error sending email: ', error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
+    }catch(error){
+        res.status(500).json({
+            status:500,
+            error:error.message
+        })
+    }
+}
+module.exports={createOrder,getOerderByVendor ,getOerderByUser,getOrderbyId,orderConfirm}

@@ -22,7 +22,7 @@ const orderSchema = new Schema({
         carrier: { type: String },
         estimatedDeliveryDate: { type: Date }
     },
-    isActive: { type: Boolean, default: true }
+    status: { type: String, default:'pemding' }
 });
 
 module.exports = mongoose.model('Order', orderSchema);
