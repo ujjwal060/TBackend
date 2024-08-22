@@ -3,13 +3,14 @@ const shop=require('../models/ShopDetailsmodel');
 const user=require('../models/Authmodel')
 const species=require('../models/SpeciesSelectmodel')
 const extension=require('../models/Extensionmodel')
+const address=require('../models/userAddressModel')
 const shortid = require('shortid');
 const nodemailer = require('nodemailer');
 
 
 const createOrder=async(req,res)=>{
     try {
-        const { shopId, userId, species, extensions, totalAmount } = req.body;
+        const { shopId, userId, species, extensions, totalAmount,address } = req.body;
         const shops = await shop.findById(shopId);
         if (!shops) {
             return res.status(404).json({
@@ -27,6 +28,7 @@ const createOrder=async(req,res)=>{
             extensions,
             totalAmount,
             bookingId,
+            address,
             orderDate: Date.now(),
             paymentStatus: 'pending'
         };
@@ -58,11 +60,11 @@ const getOerderByVendor=async(req,res)=>{
         const extensionIds = [...new Set(orders.flatMap(order => order.extensions.map(e => e.extensionId)))];
 
         // Fetch users, shops, species, and extensions
-        const [users, shops, speciesD, extensionsD] = await Promise.all([
+        const [users, shops, speciesD, extensionsD,userAddresss] = await Promise.all([
             user.find({ _id: { $in: userIds } }).select('name email').lean(),
             shop.find({ _id: { $in: shopIds } }).select('shopName address').lean(),
             species.find({ _id: { $in: speciesIds } }).select('speciesId speciesImage speciesName').lean(), 
-            extension.find({ _id: { $in: extensionIds } }).select('extensionId image extensionName').lean() 
+            extension.find({ _id: { $in: extensionIds } }).select('extensionId image extensionName').lean(),
         ]);
 
         const userMap = users.reduce((acc, user) => {
@@ -84,6 +86,11 @@ const getOerderByVendor=async(req,res)=>{
             acc[extension._id] = extension;
             return acc;
         }, {});
+
+        function formatDeliveryAddress(address) {
+            const { street, city, state, zipCode, country } = address;
+            return `${street}, ${city}, ${state}, ${zipCode}, ${country}`;
+        }
 
         const detailedOrders = orders.map(order => ({
             orderId: order._id,
@@ -110,7 +117,8 @@ const getOerderByVendor=async(req,res)=>{
             paymentStatus: order.paymentStatus,
             totalAmount: order.totalAmount,
             bookingId: order.bookingId,
-            status:order.status
+            deliveryAddress:formatDeliveryAddress(order.address) || 'N/A',
+            status:order.status,
         }));
 
         res.json({
@@ -164,6 +172,11 @@ const getOerderByUser=async(req,res)=>{
             return acc;
         }, {});
 
+        function formatDeliveryAddress(address) {
+            const { street, city, state, zipCode, country } = address;
+            return `${street}, ${city}, ${state}, ${zipCode}, ${country}`;
+        }
+
         const detailedOrders = orders.map(order => ({
             orderId: order._id,
             userId: order.userId,
@@ -188,6 +201,7 @@ const getOerderByUser=async(req,res)=>{
             orderDate: order.orderDate,
             status: order.paymentStatus,
             totalAmount: order.totalAmount,
+            deliveryAddress:formatDeliveryAddress(order.address) || 'N/A',
             bookingId: order.bookingId
         }));
 
@@ -240,6 +254,11 @@ const getOrderbyId=async(req,res)=>{
             return acc;
         }, {});
 
+        function formatDeliveryAddress(address) {
+            const { street, city, state, zipCode, country } = address;
+            return `${street}, ${city}, ${state}, ${zipCode}, ${country}`;
+        }
+
         // Create detailed order response
         const detailedOrder = {
             orderId: orders._id,
@@ -261,6 +280,7 @@ const getOrderbyId=async(req,res)=>{
             orderDate: orders.orderDate,
             status: orders.paymentStatus,
             totalAmount: orders.totalAmount,
+            deliveryAddress:formatDeliveryAddress(order.address) || 'N/A',
             bookingId: orders.bookingId
         };
 
@@ -354,4 +374,60 @@ const sendConfirmationEmail=async(order, user , estimatedDeliveryDate)=>{
         })
     }
 }
-module.exports={createOrder,getOerderByVendor ,getOerderByUser,getOrderbyId,orderConfirm}
+
+const userAddress=async(req,res)=>{
+    try {
+        const result = new address(req.body);
+        await result.save();
+        res.json({
+            status: 200,
+            msg: "Saved Addressed...!",
+            data: result
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+const getAddres=async(req,res)=>{
+    try {
+        const addresses = await address.find({ userId: req.params.userId });
+        res.json({
+            status: 200,
+            msg: "Fetched Addressed...!",
+            data: addresses
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+const updateAddress=async(req,res)=>{
+    try {
+        const result = await address.findOneAndUpdate(
+            { userId: req.params.userId }, 
+            req.body,
+            { new: true, upsert: true }
+          );
+        res.json({
+            status: 200,
+            msg: "Updated Addressed...!",
+            data: result
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+const deleteAddress=async(req,res)=>{
+    try {
+        const result=await address.findByIdAndDelete({ _id: req.params.addressId, userId: req.params.userId });
+        res.json({
+            status: 200,
+            msg: "Address deleted successfully..!",
+        });
+    } catch (error) {
+    res.status(500).json({ error: error.message });
+    }
+}
+module.exports={createOrder,getOerderByVendor ,getOerderByUser,getOrderbyId,orderConfirm,userAddress,getAddres,updateAddress,deleteAddress}

@@ -22,6 +22,13 @@ const orderSchema = new Schema({
         carrier: { type: String },
         estimatedDeliveryDate: { type: Date }
     },
+    address: {
+        street: String,
+        city: String,
+        state: String,
+        zipCode: String,
+        country: String,
+    },
     status: { type: String, default:'pending' }
 });
 
