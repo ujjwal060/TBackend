@@ -50,6 +50,9 @@ const ShopDetailsSchema = new mongoose.Schema({
   shopVerifyByAdmin:{
     type:Boolean,
     require:true
+  },
+  isSubscription:{
+    type:Boolean
   }
 });
 

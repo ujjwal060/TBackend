@@ -199,7 +199,8 @@ const getOerderByUser=async(req,res)=>{
                 image: extensionMap[extension.extensionId]?.image || 'N/A'
             })),
             orderDate: order.orderDate,
-            status: order.paymentStatus,
+            paymentStatus: order.paymentStatus,
+            status:order.status,
             totalAmount: order.totalAmount,
             deliveryAddress:formatDeliveryAddress(order.address) || 'N/A',
             bookingId: order.bookingId
@@ -278,9 +279,10 @@ const getOrderbyId=async(req,res)=>{
                 image: extensionMap[extension.extensionId]?.image || 'N/A'
             })),
             orderDate: orders.orderDate,
-            status: orders.paymentStatus,
+            paymentStatus: orders.paymentStatus,
+            status:orders.status,
             totalAmount: orders.totalAmount,
-            deliveryAddress:formatDeliveryAddress(order.address) || 'N/A',
+            deliveryAddress:formatDeliveryAddress(orders.address) || 'N/A',
             bookingId: orders.bookingId
         };
 

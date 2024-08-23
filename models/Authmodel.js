@@ -17,9 +17,6 @@ const authSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ['pending', 'rejected', 'accepted']
-  },
-  isSubscription:{
-    type:Boolean
   }
 });
 

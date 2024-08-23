@@ -48,6 +48,7 @@ const createShopDetails = async (req, res, next) => {
       address,
       vendorId,
       shopVerifyByAdmin: false,
+      isSubscription:false
     });
 
     await newShopDetails.save();

@@ -25,8 +25,7 @@ const register = async (req, res, next) => {
       role:req.body.role
     });
     if (req.body.role === 'vendor') {
-      newUser.status = 'pending',
-      newUser.isSubscription=false
+      newUser.status = 'pending'
     }
     await newUser.save();
     return res.status(200).json({ message: "User registered successfully" });
