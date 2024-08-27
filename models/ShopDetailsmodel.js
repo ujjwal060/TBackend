@@ -53,7 +53,16 @@ const ShopDetailsSchema = new mongoose.Schema({
   },
   isSubscription:{
     type:Boolean
-  }
+  },
+  subscriptionPlan: { type: String, enum: ['Monthly', 'Yearly'] },
+  paymentStatus: { type: String, enum: ['Pending', 'Completed', 'Failed'], default: 'Pending' },
+  planExpiryDate: { type: Date },
+  isSubscriptionExpired: { type: Boolean, default: false },
+  paymentHistory: [{
+    paymentDate: { type: Date, required: true },
+    amountPaid: { type: Number, required: true },
+    transactionId: { type: String, required: true },
+  }]
 });
 
 module.exports = mongoose.model('ShopDetails', ShopDetailsSchema);

@@ -118,7 +118,8 @@ const getAllShopDetails = async (req, res, next) => {
       res.status(500).json({ message: 'Failed to fetch shop details' });
     }
   }
-module.exports = {
+
+  module.exports = {
   createShopDetails,
   getAllShopDetails,
   getShopDetailsById,
