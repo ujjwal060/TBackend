@@ -10,7 +10,8 @@ const order=require('./routes/orderRoutes');
 const payment=require('./routes/paymentRoutes');
 const adminauthRoute = require("./routes/adminauthRoute");
 const vendorRoute = require("./routes/vendorRoute");
-const user=require("./routes/userRoutes")
+const user=require("./routes/userRoutes");
+const subscription=require('./routes/subscriptionRoutes');
 
 
 const bodyParser = require('body-parser');
@@ -25,7 +26,7 @@ const PORT = process.env.PORT || 3002;
 const MONGO_URL = process.env.MONGO_URL;
 
 const corsOptions = {
-  origin: '*', // Allow requests from 54.244.180.151:3001
+  origin: '*', // Allow requests from localhost:3001
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204
@@ -59,6 +60,7 @@ app.use("/api/Extension", Extensionroute);
 app.use("/api", order);
 app.use('/api',payment )
 app.use('/api',user )
+app.use('/api',subscription )
 
 
 
@@ -66,7 +68,7 @@ app.use('/api',user )
 app.post("/api/upload", upload.single('productname'), (req, res) => {
   res.json({
     success: 1,
-    image_url: `http://54.244.180.151
+    image_url: `http://localhost
 
 
 

@@ -17,7 +17,7 @@ const checkSubscriptionValidity = async () => {
     }
 };
 
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 0 * * *', async () => {
     await checkSubscriptionValidity();
     console.log('Cron job: Subscription status updated for all shops.');
 });
