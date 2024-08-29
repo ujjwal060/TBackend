@@ -39,6 +39,7 @@ const addExtension = async (req, res) => {
 
 const getExtension=async(req,res)=>{
   try{
+    console.log(111);
     const {shopId}=req.params;
     const result=await Extension.find({shopId:shopId});
     res.json({
