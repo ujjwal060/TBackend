@@ -5,7 +5,7 @@ const shopDetails=require("../models/ShopDetailsmodel")
 
 const payment = async (req, res) => {
   const { amount,tokenid,bookingId,confirmationId } = req.body;
-  if (!tokenid || !bookingId || !amount,confirmationId) {
+  if (!tokenid || !bookingId || !amount,!confirmationId) {
     return res.status(400).send({ error: "Missing required parameters" });
   }
   try {

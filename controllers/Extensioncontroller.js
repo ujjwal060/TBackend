@@ -17,7 +17,7 @@ const upload = multer({ storage: storage });
 // Handle adding a new extension with image upload
 const addExtension = async (req, res) => {
   try {
-    const { extensionName, extensionDescription, price,shopId } = req.body;
+    const { extensionName, extensionDescription, price,shopId ,role} = req.body;
     const extensionImage = req.file.path;
 
     const newExtension = new Extension({
@@ -25,7 +25,8 @@ const addExtension = async (req, res) => {
       description:extensionDescription,
       image:extensionImage,
       price,
-      shopId
+      shopId,
+      role
     });
 
     await newExtension.save();
@@ -53,6 +54,23 @@ const getExtension=async(req,res)=>{
     });
   }
 }
+
+const getAll=async(req,res)=>{
+  try{
+    const result=await Extension.find({role:'admin'});
+    res.json({
+      status:200,
+      msg:"get Extension for shop",
+      data:result
+    })
+
+  }catch(error){
+    res.status(500).json({
+      status: 500,
+      error: err.message
+    });
+  }
+  }
 
 const deleteExtension=async(req,res)=>{
   try{
@@ -95,5 +113,6 @@ module.exports = {
   getExtension,
   deleteExtension,
   editExtension,
+  getAll,
   upload,
 };
