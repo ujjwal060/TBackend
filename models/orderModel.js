@@ -29,7 +29,8 @@ const orderSchema = new Schema({
         zipCode: String,
         country: String,
     },
-    status: { type: String, default:'pending' }
+    status: { type: String, default:'pending' },
+    confirmationId:{type:String,require:true}
 });
 
 module.exports = mongoose.model('Order', orderSchema);

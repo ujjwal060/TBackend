@@ -17,9 +17,16 @@ const extensionSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  shopId:{
+  shopId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true 
+    required: function() {
+      return this.role === 'vendor';
+    }
+  },
+  role: {
+    type: String,
+    required: true,
+    enum: ['admin', 'vendor'],
   }
 });
 

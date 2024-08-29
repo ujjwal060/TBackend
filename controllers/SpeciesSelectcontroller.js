@@ -1,4 +1,5 @@
 const Species = require('../models/SpeciesSelectmodel');
+const SpeciesCategories=require('../models/SpeciesCategoriesModel')
 const multer = require('multer');
 const path = require('path');
 
@@ -12,6 +13,33 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+
+const addSpeciesCategories=async(req,res)=>{
+  try {
+    const {name} = req.body;
+    const image = req.file.path;
+
+    const newSpecies = new SpeciesCategories({
+      name,
+      image
+    });
+
+    await newSpecies.save();
+
+    res.status(200).json(newSpecies);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+const getSpeciesCategories=async(req,res)=>{
+  try {
+    const species = await SpeciesCategories.find();
+    res.status(200).json(species);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
 
 const addSpecies = async (req, res) => {
   try {
@@ -69,5 +97,7 @@ module.exports = {
   addSpecies,
   getSpeciesById,
   deleteSpecies,
+  addSpeciesCategories,
+  getSpeciesCategories,
   upload,
 };

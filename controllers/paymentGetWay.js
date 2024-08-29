@@ -4,8 +4,8 @@ const order = require("../models/orderModel");
 const shopDetails=require("../models/ShopDetailsmodel")
 
 const payment = async (req, res) => {
-  const { amount,tokenid,bookingId } = req.body;
-  if (!tokenid || !bookingId || !amount) {
+  const { amount,tokenid,bookingId,confirmationId } = req.body;
+  if (!tokenid || !bookingId || !amount,confirmationId) {
     return res.status(400).send({ error: "Missing required parameters" });
   }
   try {
@@ -30,6 +30,7 @@ const payment = async (req, res) => {
     });
     if(paymentIntent.status ='succeeded'){
       book.paymentStatus='success';
+      book.confirmationId=confirmationId;
       await book.save();
     }
     res.json({
