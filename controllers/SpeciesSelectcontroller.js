@@ -45,7 +45,11 @@ const addSpecies = async (req, res) => {
   try {
     const { speciesName, price ,shopId} = req.body;
     const speciesImage = req.file.path;
+    const existingSpecies = await Species.findOne({ speciesName, shopId });
 
+    if (existingSpecies) {
+      return res.status(400).json({ message: 'Species already exists' });
+    }
     const newSpecies = new Species({
       speciesName,
       speciesImage,
