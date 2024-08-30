@@ -5,7 +5,10 @@ const extensionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  species:{type:String,require:true},
+  specie:{
+    type:String,
+    require:true
+  },
   description: {
     type: String,
     required: true,
