@@ -17,11 +17,12 @@ const upload = multer({ storage: storage });
 // Handle adding a new extension with image upload
 const addExtension = async (req, res) => {
   try {
-    const { extensionName, extensionDescription, price,shopId ,role} = req.body;
+    const { extensionName,specie, extensionDescription, price,shopId ,role} = req.body;
     const extensionImage = req.file.path;
 
     const newExtension = new Extension({
       extensionName,
+      specie,
       description:extensionDescription,
       image:extensionImage,
       price,
@@ -39,7 +40,6 @@ const addExtension = async (req, res) => {
 
 const getExtension=async(req,res)=>{
   try{
-    console.log(111);
     const {shopId}=req.params;
     const result=await Extension.find({shopId:shopId});
     res.json({
