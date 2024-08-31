@@ -98,6 +98,7 @@ const getOerderByVendor=async(req,res)=>{
             userName: userMap[order.userId]?.name || 'N/A',
             userEmail: userMap[order.userId]?.email || 'N/A',
             shopId: order.shopId,
+            confirmationId:order.confirmationId,
             shopName: shopMap[order.shopId]?.shopName || 'N/A',
             shopAddress: shopMap[order.shopId]?.address || 'N/A',
             vendorId: order.vendorId,
@@ -186,6 +187,7 @@ const getOerderByUser=async(req,res)=>{
             shopName: shopMap[order.shopId]?.shopName || 'N/A',
             shopAddress: shopMap[order.shopId]?.address || 'N/A',
             vendorId: order.vendorId,
+            confirmationId:order.confirmationId,
             species: order.species.map(species => ({
                 speciesId: species.speciesId,
                 speciesName: speciesMap[species.speciesId]?.speciesName || 'N/A',
@@ -279,6 +281,7 @@ const getOrderbyId=async(req,res)=>{
                 image: extensionMap[extension.extensionId]?.image || 'N/A'
             })),
             orderDate: orders.orderDate,
+            confirmationId:order.confirmationId,
             paymentStatus: orders.paymentStatus,
             status:orders.status,
             totalAmount: orders.totalAmount,
