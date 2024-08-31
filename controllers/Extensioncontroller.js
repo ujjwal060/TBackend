@@ -42,12 +42,13 @@ const addExtension = async (req, res) => {
 const getExtension=async(req,res)=>{
   try{
     const {shopId,specie}=req.params;
+    const {search}=req.body;
     let aggregation = [];
    
       aggregation.push({
         $match: {
           $or: [
-            { shopId: shopId, specie: specie },
+            { shopId: new ObjectId(shopId), specie: specie },
             { role: 'admin', specie: specie }
           ]
         }
