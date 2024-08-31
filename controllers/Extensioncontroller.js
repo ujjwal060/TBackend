@@ -40,8 +40,13 @@ const addExtension = async (req, res) => {
 
 const getExtension=async(req,res)=>{
   try{
-    const {shopId}=req.params;
-    const result=await Extension.find({shopId:shopId});
+    const {shopId,specie}=req.params;
+    const result = await Extension.find({
+      $or: [
+        { shopId: shopId, specie: specie },
+        { role: 'admin', specie: specie }
+      ]
+    });
     res.json({
       status:200,
       msg:"get Extension for shop",
@@ -56,6 +61,23 @@ const getExtension=async(req,res)=>{
   }
 }
 
+const getByShop=async(req,res)=>{
+  try{
+    const {shopId}=req.params;
+    const result = await Extension.find({shopId:shopId});
+    res.json({
+      status:200,
+      msg:"get Extension for shop",
+      data:result
+    })
+
+  }catch(error){
+    res.status(500).json({
+      status: 500,
+      error: err.message
+    });
+  }
+}
 const getAll=async(req,res)=>{
   try{
     const result=await Extension.find({role:'admin'});
@@ -115,5 +137,6 @@ module.exports = {
   deleteExtension,
   editExtension,
   getAll,
+  getByShop,
   upload,
 };
