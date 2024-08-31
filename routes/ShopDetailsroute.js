@@ -7,7 +7,7 @@ const upload = ShopDetailscontroller.upload;
 
 // POST request - Create new shop details with image upload
 router.post('/add', upload.single('shopLogo'), ShopDetailscontroller.createShopDetails);
-router.get('/getAll', ShopDetailscontroller.getAllShopDetails);
+router.post('/getAll', ShopDetailscontroller.getAllShopDetails);
 router.get('/shop/:id', ShopDetailscontroller.getShopDetailsById);
 router.delete('/deleteShop/:id',ShopDetailscontroller.deleteShop);
 router.post('/verifyShop',ShopDetailscontroller.verifyShopByAdmin)

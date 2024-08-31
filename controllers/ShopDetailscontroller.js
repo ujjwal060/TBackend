@@ -62,7 +62,48 @@ const createShopDetails = async (req, res, next) => {
 
 const getAllShopDetails = async (req, res, next) => {
     try {
-      const shopDetails = await ShopDetails.find({shopVerifyByAdmin:true});
+      const { search, speciesName } = req.body;
+
+      let aggregation = [];
+  
+      aggregation.push({ $match: { shopVerifyByAdmin: true } });
+  
+      if (search) {
+        aggregation.push({
+          $match: {
+            $or: [
+              { shopName: { $regex: search, $options: 'i' } },
+              { address: { $regex: search, $options: 'i' } }
+            ]
+          }
+        });
+      }
+  
+      if (speciesName) {
+        aggregation.push({
+          $lookup: {
+            from: 'species',
+            localField: '_id',
+            foreignField: 'shopId',
+            as: 'speciesInfo'
+          }
+        });
+  
+        aggregation.push({
+          $match: {
+            'speciesInfo.speciesName': { $regex: speciesName, $options: 'i' }
+          }
+        });
+  
+        aggregation.push({
+          $project: {
+            speciesInfo: 0
+          }
+        });
+      }
+  
+      // Execute the aggregation pipeline
+      const shopDetails = await ShopDetails.aggregate(aggregation);
       res.status(200).json({
           "status":200,
           "success":true,
