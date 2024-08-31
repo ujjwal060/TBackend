@@ -12,9 +12,9 @@ const contactUs=async(req,res)=>{
         });
     
         const savedContact = await newContact.save();
-        res.status(201).json(savedContact);
+        res.status(200).json(savedContact);
     }catch(error){
-        res.status(400).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 }
 
@@ -28,9 +28,9 @@ const feedbacks=async(req,res)=>{
             comments,
         });
         const savedFeedback = await newFeedback.save();
-        res.status(201).json(savedFeedback);
+        res.status(200).json(savedFeedback);
     }catch(error){
-        res.status(400).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 }
 
