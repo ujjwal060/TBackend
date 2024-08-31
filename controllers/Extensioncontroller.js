@@ -1,4 +1,5 @@
 const Extension = require('../models/Extensionmodel');
+const { ObjectId } = require('mongodb');
 const multer = require('multer');
 const path = require('path');
 
@@ -56,7 +57,7 @@ const getExtension=async(req,res)=>{
   }catch(error){
     res.status(500).json({
       status: 500,
-      error: err.message
+      error: error.message
     });
   }
 }
@@ -64,7 +65,26 @@ const getExtension=async(req,res)=>{
 const getByShop=async(req,res)=>{
   try{
     const {shopId}=req.params;
-    const result = await Extension.find({shopId:shopId});
+    const { search} = req.body;
+
+    let aggregation = [];
+   
+      aggregation.push({
+        $match: {
+          shopId: new ObjectId(shopId)
+        }
+      });
+
+    if (search) {
+      aggregation.push({
+        $match: {
+          $or: [
+            { extensionName: { $regex: search, $options: 'i' } }
+          ]
+        }
+      });
+    }
+    const result = await Extension.aggregate(aggregation);
     res.json({
       status:200,
       msg:"get Extension for shop",
@@ -74,7 +94,7 @@ const getByShop=async(req,res)=>{
   }catch(error){
     res.status(500).json({
       status: 500,
-      error: err.message
+      error: error.message
     });
   }
 }
@@ -90,7 +110,7 @@ const getAll=async(req,res)=>{
   }catch(error){
     res.status(500).json({
       status: 500,
-      error: err.message
+      error: error.message
     });
   }
   }
@@ -106,7 +126,7 @@ const deleteExtension=async(req,res)=>{
   }catch(error){
     res.status(500).json({
       status: 500,
-      error: err.message
+      error: error.message
     });
   }
 }
@@ -126,7 +146,7 @@ const editExtension=async(req,res)=>{
   }catch(error){
     res.status(500).json({
       status: 500,
-      error: err.message
+      error: error.message
     });
   }
 }
