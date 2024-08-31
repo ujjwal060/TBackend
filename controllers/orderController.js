@@ -281,7 +281,7 @@ const getOrderbyId=async(req,res)=>{
                 image: extensionMap[extension.extensionId]?.image || 'N/A'
             })),
             orderDate: orders.orderDate,
-            confirmationId:order.confirmationId,
+            confirmationId:orders.confirmationId,
             paymentStatus: orders.paymentStatus,
             status:orders.status,
             totalAmount: orders.totalAmount,
