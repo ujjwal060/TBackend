@@ -12,7 +12,7 @@ const adminauthRoute = require("./routes/adminauthRoute");
 const vendorRoute = require("./routes/vendorRoute");
 const user=require("./routes/userRoutes");
 const subscription=require('./routes/subscriptionRoutes');
-
+const contactUs=require('./routes/contactRoute')
 
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -58,9 +58,11 @@ app.use("/api/vendor", vendorRoute);
 app.use("/api/species", SpeciesSelectroute);
 app.use("/api/Extension", Extensionroute);
 app.use("/api", order);
-app.use('/api',payment )
-app.use('/api',user )
-app.use('/api',subscription )
+app.use('/api',payment );
+app.use('/api',user );
+app.use('/api',subscription );
+app.use('/api',contactUs );
+
 
 
 
