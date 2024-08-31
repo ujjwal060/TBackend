@@ -1,5 +1,6 @@
 const Species = require('../models/SpeciesSelectmodel');
 const SpeciesCategories=require('../models/SpeciesCategoriesModel')
+const { ObjectId } = require('mongodb');
 const multer = require('multer');
 const path = require('path');
 
@@ -72,7 +73,26 @@ const addSpecies = async (req, res) => {
 const getSpeciesById=async(req,res)=>{
   try{
     const {shopId}=req.params;
-    const result=await Species.find({shopId:shopId})
+    const { search} = req.body;
+
+    let aggregation = [];
+   
+      aggregation.push({
+        $match: {
+          shopId: new ObjectId(shopId)
+        }
+      });
+
+    if (search) {
+      aggregation.push({
+        $match: {
+          $or: [
+            { speciesName: { $regex: search, $options: 'i' } }
+          ]
+        }
+      });
+    }
+    const result=await Species.aggregate(aggregation)
     res.json({
       status:200,
       msg:"get all species for shop",
@@ -81,7 +101,7 @@ const getSpeciesById=async(req,res)=>{
   }catch(error){
     res.status(500).json({
       status: 500,
-      error: err.message
+      error: error.message
     });
   }
 }
@@ -97,7 +117,7 @@ const deleteSpecies=async(req,res)=>{
   }catch(error){
     res.status(500).json({
       status: 500,
-      error: err.message
+      error: error.message
     });
   }
 }

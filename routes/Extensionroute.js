@@ -11,7 +11,7 @@ router.get('/getExtension/:shopId/:specie',ExtensionController.getExtension);
 router.get('/getAll',ExtensionController.getAll);
 router.delete('/deleteExten/:id',ExtensionController.deleteExtension);
 router.post('/editeExten/:id', upload.single('extensionImage'), ExtensionController.editExtension);
-router.get('/getByShop/:shopId',ExtensionController.getByShop);
+router.post('/getByShop/:shopId',ExtensionController.getByShop);
 
 
 module.exports = router;
