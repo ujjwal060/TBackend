@@ -22,7 +22,7 @@ const feedbacks=async(req,res)=>{
     try{
         const { userId, rating, comments } = req.body;
 
-        const newFeedback = new Feedback({
+        const newFeedback = new feedback({
             userId,
             rating,
             comments,
