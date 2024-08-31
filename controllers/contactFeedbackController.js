@@ -12,7 +12,11 @@ const contactUs=async(req,res)=>{
         });
     
         const savedContact = await newContact.save();
-        res.status(200).json(savedContact);
+        res.json({
+            status:200,
+            msg:"Thanks For Contacting Us",
+            data:[]
+        })   
     }catch(error){
         res.status(500).json({ error: error.message });
     }
@@ -28,7 +32,11 @@ const feedbacks=async(req,res)=>{
             comments,
         });
         const savedFeedback = await newFeedback.save();
-        res.status(200).json(savedFeedback);
+        res.json({
+            status:200,
+            msg:"Thanks For Your Valuable FeedBack",
+            data:[]
+        })   
     }catch(error){
         res.status(500).json({ error: error.message });
     }
