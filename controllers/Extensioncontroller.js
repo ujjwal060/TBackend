@@ -42,12 +42,28 @@ const addExtension = async (req, res) => {
 const getExtension=async(req,res)=>{
   try{
     const {shopId,specie}=req.params;
-    const result = await Extension.find({
-      $or: [
-        { shopId: shopId, specie: specie },
-        { role: 'admin', specie: specie }
-      ]
-    });
+    const {search}=req.body;
+    let aggregation = [];
+   
+      aggregation.push({
+        $match: {
+          $or: [
+            { shopId: new ObjectId(shopId), specie: specie },
+            { role: 'admin', specie: specie }
+          ]
+        }
+      });
+
+    if (search) {
+      aggregation.push({
+        $match: {
+          $or: [
+            { extensionName: { $regex: search, $options: 'i' } }
+          ]
+        }
+      });
+    }
+    const result = await Extension.aggregate(aggregation);
     res.json({
       status:200,
       msg:"get Extension for shop",
