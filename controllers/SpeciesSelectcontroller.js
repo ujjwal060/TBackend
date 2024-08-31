@@ -35,7 +35,11 @@ const addSpeciesCategories=async(req,res)=>{
 const getSpeciesCategories=async(req,res)=>{
   try {
     const species = await SpeciesCategories.find();
-    res.status(200).json(species);
+    res.json({
+      status:200,
+      msg:"get all Species",
+      data:species
+  })   
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
