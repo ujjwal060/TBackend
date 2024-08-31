@@ -1,5 +1,6 @@
 const contact=require('../models/contactusModel');
 const feedback=require('../models/feedbackModel');
+const user=require('../models/Authmodel')
 
 const contactUs=async(req,res)=>{
     try{
@@ -58,10 +59,18 @@ const getContact=async(req,res)=>{
 const getFeedback=async(req,res)=>{
     try{
         const result = await feedback.find();
+        const feedbacks = await Promise.all(result.map(async (feedbackItem) => {
+            const users = await user.findById(feedbackItem.userId);
+            
+            return {
+                ...feedbackItem._doc,
+                username: users.name,
+            };
+        }));
         res.json({
           status:200,
-          msg:"get all contactus",
-          data:result
+          msg:"get all feedback",
+          data:feedbacks
       })   
     }catch(error){
         res.status(500).json({ message: error.message });
