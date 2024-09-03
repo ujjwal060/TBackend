@@ -5,7 +5,7 @@ const { verifyToken } = require('../middleware/verifyToken')
 
 router.post('/getVendor', getVendor);
 router.delete('/deleteVendor/:id', deleteVendor);
-router.get('/getUser', getUser);
+router.post('/getUser', getUser);
 router.delete('/deleteUser/:id', deleteUser);
 router.post('/approveVendor',approveVendor);
 router.get('/profile/:id',viewProfile);
