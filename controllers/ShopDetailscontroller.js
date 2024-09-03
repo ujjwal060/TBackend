@@ -14,7 +14,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Create new shop details with image upload
 const createShopDetails = async (req, res, next) => {
   try {
     const {
@@ -28,10 +27,11 @@ const createShopDetails = async (req, res, next) => {
       availableTo,
       availableToPeriod,
       address,
-      vendorId
+      vendorId,
+      latitude,
+      longitude
     } = req.body;
 
-    // File upload handling
     const shopLogo = req.file ? req.file.path : null;
 
     const newShopDetails = new ShopDetails({
@@ -46,6 +46,8 @@ const createShopDetails = async (req, res, next) => {
       availableToPeriod,
       shopLogo,
       address,
+      latitude,
+      longitude,
       vendorId,
       shopVerifyByAdmin: false,
       isSubscription:false

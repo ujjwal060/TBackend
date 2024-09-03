@@ -42,6 +42,12 @@ const ShopDetailsSchema = new mongoose.Schema({
   address: {
     type: String,
   },
+  latitude: {
+    type: Number,
+  },
+  longitude: {
+    type: Number,
+  },
   vendorId:{
     type: mongoose.Schema.Types.ObjectId,
     required: true,
