@@ -10,7 +10,7 @@ router.post('/addExtension', upload.single('extensionImage'), ExtensionControlle
 router.post('/getExtension/:shopId/:specie',ExtensionController.getExtension);
 router.get('/getAll',ExtensionController.getAll);
 router.delete('/deleteExten/:id',ExtensionController.deleteExtension);
-router.post('/editeExten/:id', upload.single('extensionImage'), ExtensionController.editExtension);
+router.put('/editeExten/:id', upload.single('extensionImage'), ExtensionController.editExtension);
 router.post('/getByShop/:shopId',ExtensionController.getByShop);
 
 
