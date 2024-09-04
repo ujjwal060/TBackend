@@ -1,4 +1,5 @@
 const subscription=require('../models/subscriptionModel')
+const shopModel=require('../models/ShopDetailsmodel')
 
 const addSubscription=async(req,res)=>{
     try{
@@ -50,4 +51,36 @@ const deleteSubscription=async(req,res)=>{
     }
 }
 
-module.exports = { addSubscription,getSubscription,deleteSubscription }
+const getShopId=async(req,res)=>{
+    try{
+        const { id } = req.params;
+        const shop = await shopModel.findById(id);
+        if (!shop) {
+            return res.status(404).json({ error: 'Shop not found' });
+        }
+
+        const plan = await subscription.findOne({ billingFrequency: shop.subscriptionPlan });
+        if (!plan) {
+            return res.status(404).json({ error: 'Subscription plan not found' });
+        }
+
+        const response = {
+            planExpiryDate: shop.planExpiryDate,
+            subscriptionPlan: shop.subscriptionPlan,
+            price: plan.price,
+            features: plan.features,
+            description:plan.description
+        };
+
+        res.json({
+            status:200,
+            data:response
+        });
+    }catch(error){
+        res.status(500).json({
+            status: 500,
+            error: error.message,
+        });
+    }
+}
+module.exports = { addSubscription,getSubscription,deleteSubscription,getShopId }

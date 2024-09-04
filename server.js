@@ -26,7 +26,7 @@ const PORT = process.env.PORT || 3002;
 const MONGO_URL = process.env.MONGO_URL;
 
 const corsOptions = {
-  origin: '*', // Allow requests from localhost:3001
+  origin: '*', // Allow requests from 54.244.180.151:3001
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204
@@ -70,7 +70,7 @@ app.use('/api',contactUs );
 app.post("/api/upload", upload.single('productname'), (req, res) => {
   res.json({
     success: 1,
-    image_url: `http://localhost
+    image_url: `http://54.244.180.151
 
 
 
