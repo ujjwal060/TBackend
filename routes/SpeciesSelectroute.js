@@ -11,5 +11,6 @@ router.post('/getSpecies/:shopId',SpeciesSelectcontroller.getSpeciesById);
 router.delete('/deleteSpecies/:id',SpeciesSelectcontroller.deleteSpecies);
 router.post('/SpeciesCategories', upload.single('image'), SpeciesSelectcontroller.addSpeciesCategories);
 router.get('/getSpeciesCategories/',SpeciesSelectcontroller.getSpeciesCategories);
+router.put('/species/:id', upload.single('image'), SpeciesSelectcontroller.editSpecies);
 
 module.exports = router;
