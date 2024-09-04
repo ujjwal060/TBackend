@@ -17,7 +17,9 @@ const authSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ['pending', 'rejected', 'accepted']
-  }
+  },
+  deviceToken:{type:String,required:false},
+  treamsCon:{type:Boolean}
 });
 
 

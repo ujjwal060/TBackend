@@ -27,10 +27,12 @@ const register = async (req, res, next) => {
     if (req.body.role === 'vendor') {
       newUser.status = 'pending'
     }
+    if(req.body.role==='user'){
+      newUser.treamsCon=req.body.treamsCon
+    }
     await newUser.save();
     return res.status(200).json({ message: "User registered successfully" });
   } catch (error) {
-    console.error("Error in register function:", error);
     return next(createError(500, "Something went wrong"));
   }
 };
@@ -61,7 +63,8 @@ const login = async (req, res,next) => {
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-
+    users.deviceToken = req.body.deviceToken;
+    await users.save();
     res.cookie("access_token", token, { httpOnly: true })
       .status(200)
       .json({
@@ -199,7 +202,7 @@ const updateAuth = async (req, res) => {
 const deleteAuth = async (req, res) => {
   try {
     await user.findByIdAndDelete(req.params.id);
-    res.json({ message: "Auth deleted" });
+    res.status(200).json({ status:200,msg: "User deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
