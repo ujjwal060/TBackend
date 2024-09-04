@@ -1,16 +1,18 @@
-const order=require('../models/orderModel');
-const shop=require('../models/ShopDetailsmodel');
-const user=require('../models/Authmodel')
-const species=require('../models/SpeciesSelectmodel')
-const extension=require('../models/Extensionmodel')
-const address=require('../models/userAddressModel')
+const order = require('../models/orderModel');
+const shop = require('../models/ShopDetailsmodel');
+const user = require('../models/Authmodel')
+const species = require('../models/SpeciesSelectmodel')
+const extension = require('../models/Extensionmodel')
+const address = require('../models/userAddressModel')
 const shortid = require('shortid');
 const nodemailer = require('nodemailer');
+const { notification } = require('../controllers/notification')
+const shopmodel = require('../models/ShopDetailsmodel')
 
 
-const createOrder=async(req,res)=>{
+const createOrder = async (req, res) => {
     try {
-        const { shopId, userId, species, extensions, totalAmount,address } = req.body;
+        const { shopId, userId, species, extensions, totalAmount, address } = req.body;
         const shops = await shop.findById(shopId);
         if (!shops) {
             return res.status(404).json({
@@ -19,11 +21,11 @@ const createOrder=async(req,res)=>{
             });
         }
         const bookingId = shortid.generate();
-        
+
         const orderData = {
             userId,
             shopId,
-            vendorId:shops.vendorId,
+            vendorId: shops.vendorId,
             species,
             extensions,
             totalAmount,
@@ -32,7 +34,7 @@ const createOrder=async(req,res)=>{
             orderDate: Date.now(),
             paymentStatus: 'pending'
         };
-        
+
         const result = new order(orderData);
         await result.save();
 
@@ -49,10 +51,10 @@ const createOrder=async(req,res)=>{
     }
 }
 
-const getOerderByVendor=async(req,res)=>{
-    try{
+const getOerderByVendor = async (req, res) => {
+    try {
         const { vendorId } = req.params;
-        const orders = await order.find({ vendorId: vendorId ,paymentStatus:'success' }).lean();
+        const orders = await order.find({ vendorId: vendorId, paymentStatus: 'success' }).lean();
 
         const userIds = [...new Set(orders.map(order => order.userId))];
         const shopIds = [...new Set(orders.map(order => order.shopId))];
@@ -60,10 +62,10 @@ const getOerderByVendor=async(req,res)=>{
         const extensionIds = [...new Set(orders.flatMap(order => order.extensions.map(e => e.extensionId)))];
 
         // Fetch users, shops, species, and extensions
-        const [users, shops, speciesD, extensionsD,userAddresss] = await Promise.all([
+        const [users, shops, speciesD, extensionsD, userAddresss] = await Promise.all([
             user.find({ _id: { $in: userIds } }).select('name email').lean(),
             shop.find({ _id: { $in: shopIds } }).select('shopName address').lean(),
-            species.find({ _id: { $in: speciesIds } }).select('speciesId speciesImage speciesName').lean(), 
+            species.find({ _id: { $in: speciesIds } }).select('speciesId speciesImage speciesName').lean(),
             extension.find({ _id: { $in: extensionIds } }).select('extensionId image extensionName').lean(),
         ]);
 
@@ -98,7 +100,7 @@ const getOerderByVendor=async(req,res)=>{
             userName: userMap[order.userId]?.name || 'N/A',
             userEmail: userMap[order.userId]?.email || 'N/A',
             shopId: order.shopId,
-            confirmationId:order.confirmationId,
+            confirmationId: order.confirmationId,
             shopName: shopMap[order.shopId]?.shopName || 'N/A',
             shopAddress: shopMap[order.shopId]?.address || 'N/A',
             vendorId: order.vendorId,
@@ -106,7 +108,7 @@ const getOerderByVendor=async(req,res)=>{
                 speciesId: species.speciesId,
                 speciesName: speciesMap[species.speciesId]?.speciesName || 'N/A',
                 speciesPrice: species.speciesPrice,
-                image: speciesMap[species.speciesId]?.speciesImage || 'N/A' 
+                image: speciesMap[species.speciesId]?.speciesImage || 'N/A'
             })),
             extensions: order.extensions.map(extension => ({
                 extensionId: extension.extensionId,
@@ -118,8 +120,8 @@ const getOerderByVendor=async(req,res)=>{
             paymentStatus: order.paymentStatus,
             totalAmount: order.totalAmount,
             bookingId: order.bookingId,
-            deliveryAddress:formatDeliveryAddress(order.address) || 'N/A',
-            status:order.status,
+            deliveryAddress: formatDeliveryAddress(order.address) || 'N/A',
+            status: order.status,
         }));
 
         res.json({
@@ -127,7 +129,7 @@ const getOerderByVendor=async(req,res)=>{
             data: detailedOrders,
             msg: "All orders fetched successfully"
         });
-    }catch(error){
+    } catch (error) {
         res.status(500).json({
             status: 500,
             error: error.message
@@ -135,10 +137,10 @@ const getOerderByVendor=async(req,res)=>{
     }
 }
 
-const getOerderByUser=async(req,res)=>{
-    try{
-        const {userId}=req.params;
-        const orders = await order.find({userId:userId}).lean();
+const getOerderByUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const orders = await order.find({ userId: userId }).lean();
 
         const userIds = [...new Set(orders.map(order => order.userId))];
         const shopIds = [...new Set(orders.map(order => order.shopId))];
@@ -149,8 +151,8 @@ const getOerderByUser=async(req,res)=>{
         const [users, shops, speciesD, extensionsD] = await Promise.all([
             user.find({ _id: { $in: userIds } }).select('name email').lean(),
             shop.find({ _id: { $in: shopIds } }).select('shopName address').lean(),
-            species.find({ _id: { $in: speciesIds } }).select('speciesId speciesImage speciesName').lean(), 
-            extension.find({ _id: { $in: extensionIds } }).select('extensionId image extensionName').lean() 
+            species.find({ _id: { $in: speciesIds } }).select('speciesId speciesImage speciesName').lean(),
+            extension.find({ _id: { $in: extensionIds } }).select('extensionId image extensionName').lean()
         ]);
 
         const userMap = users.reduce((acc, user) => {
@@ -187,12 +189,12 @@ const getOerderByUser=async(req,res)=>{
             shopName: shopMap[order.shopId]?.shopName || 'N/A',
             shopAddress: shopMap[order.shopId]?.address || 'N/A',
             vendorId: order.vendorId,
-            confirmationId:order.confirmationId,
+            confirmationId: order.confirmationId,
             species: order.species.map(species => ({
                 speciesId: species.speciesId,
                 speciesName: speciesMap[species.speciesId]?.speciesName || 'N/A',
                 speciesPrice: species.speciesPrice,
-                image: speciesMap[species.speciesId]?.speciesImage || 'N/A' 
+                image: speciesMap[species.speciesId]?.speciesImage || 'N/A'
             })),
             extensions: order.extensions.map(extension => ({
                 extensionId: extension.extensionId,
@@ -202,18 +204,18 @@ const getOerderByUser=async(req,res)=>{
             })),
             orderDate: order.orderDate,
             paymentStatus: order.paymentStatus,
-            status:order.status,
+            status: order.status,
             totalAmount: order.totalAmount,
-            deliveryAddress:formatDeliveryAddress(order.address) || 'N/A',
+            deliveryAddress: formatDeliveryAddress(order.address) || 'N/A',
             bookingId: order.bookingId
         }));
 
         res.json({
-            status:200,
-            data:detailedOrders,
-            msg:"ordered list"
+            status: 200,
+            data: detailedOrders,
+            msg: "ordered list"
         })
-    }catch(error){
+    } catch (error) {
         res.status(500).json({
             status: 500,
             error: err.message
@@ -221,8 +223,8 @@ const getOerderByUser=async(req,res)=>{
     }
 }
 
-const getOrderbyId=async(req,res)=>{
-    try{
+const getOrderbyId = async (req, res) => {
+    try {
         const { id } = req.params;
         const orders = await order.findById(id).lean();
         const userIds = [...new Set([orders.userId])];
@@ -281,11 +283,11 @@ const getOrderbyId=async(req,res)=>{
                 image: extensionMap[extension.extensionId]?.image || 'N/A'
             })),
             orderDate: orders.orderDate,
-            confirmationId:orders.confirmationId,
+            confirmationId: orders.confirmationId,
             paymentStatus: orders.paymentStatus,
-            status:orders.status,
+            status: orders.status,
             totalAmount: orders.totalAmount,
-            deliveryAddress:formatDeliveryAddress(orders.address) || 'N/A',
+            deliveryAddress: formatDeliveryAddress(orders.address) || 'N/A',
             bookingId: orders.bookingId
         };
 
@@ -294,7 +296,7 @@ const getOrderbyId=async(req,res)=>{
             data: detailedOrder,
             msg: "Order details"
         });
-    }catch(error){
+    } catch (error) {
         res.status(500).json({
             status: 500,
             error: error.message
@@ -302,39 +304,43 @@ const getOrderbyId=async(req,res)=>{
     }
 }
 
-const orderConfirm=async(req,res)=>{
-    try{
-        const {id}=req.params;
-        const result = await order.findByIdAndUpdate(id, { status:req.body.status }, { new: true });
+const orderConfirm = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {status}=req.body;
+        const result = await order.findByIdAndUpdate(id, { status:status}, { new: true });
         const userData = await user.findById(result.userId);
+        const shopDetails = await shopmodel.findById(result.shopId);
 
         const confirmationDate = new Date();
         const estimatedDeliveryDate = new Date();
         estimatedDeliveryDate.setDate(confirmationDate.getDate() + 7);
 
-        if(req.body.status=='confirmed'){
-           await sendConfirmationEmail(result, userData , estimatedDeliveryDate);
-        }
-        
-        res.status(200).json({ 
-            status:200,
-            message: 'Order confirmed and email sent', 
-            result });
-    }catch(error){
+        const title = `Order ${status}`
+        const body = `Your order has been ${status} by ${shopDetails.shopName}. Your order ID is ${id}. You can track your order status in the app.`
+        await notification(title, body, userData.deviceToken)
+        await sendConfirmationEmail(result, userData, estimatedDeliveryDate);
+
+        res.status(200).json({
+            status: 200,
+            message: 'Order confirmed and email sent',
+            result
+        });
+    } catch (error) {
         res.status(500).json({
-            status:500,
-            error:error.message
+            status: 500,
+            error: error.message
         })
     }
 }
 
-const sendConfirmationEmail=async(order, user , estimatedDeliveryDate)=>{
+const sendConfirmationEmail = async (order, user, estimatedDeliveryDate) => {
     try {
         let transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
                 user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS 
+                pass: process.env.EMAIL_PASS
             }
         });
 
@@ -372,15 +378,15 @@ const sendConfirmationEmail=async(order, user , estimatedDeliveryDate)=>{
                 console.log('Email sent: ' + info.response);
             }
         });
-    }catch(error){
+    } catch (error) {
         res.status(500).json({
-            status:500,
-            error:error.message
+            status: 500,
+            error: error.message
         })
     }
 }
 
-const userAddress=async(req,res)=>{
+const userAddress = async (req, res) => {
     try {
         const result = new address(req.body);
         await result.save();
@@ -394,7 +400,7 @@ const userAddress=async(req,res)=>{
     }
 }
 
-const getAddres=async(req,res)=>{
+const getAddres = async (req, res) => {
     try {
         const addresses = await address.find({ userId: req.params.userId });
         res.json({
@@ -407,13 +413,13 @@ const getAddres=async(req,res)=>{
     }
 }
 
-const updateAddress=async(req,res)=>{
+const updateAddress = async (req, res) => {
     try {
         const result = await address.findOneAndUpdate(
-            { userId: req.params.userId }, 
+            { userId: req.params.userId },
             req.body,
             { new: true, upsert: true }
-          );
+        );
         res.json({
             status: 200,
             msg: "Updated Addressed...!",
@@ -424,15 +430,15 @@ const updateAddress=async(req,res)=>{
     }
 }
 
-const deleteAddress=async(req,res)=>{
+const deleteAddress = async (req, res) => {
     try {
-        const result=await address.findByIdAndDelete({ _id: req.params.addressId, userId: req.params.userId });
+        const result = await address.findByIdAndDelete({ _id: req.params.addressId, userId: req.params.userId });
         res.json({
             status: 200,
             msg: "Address deleted successfully..!",
         });
     } catch (error) {
-    res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 }
-module.exports={createOrder,getOerderByVendor ,getOerderByUser,getOrderbyId,orderConfirm,userAddress,getAddres,updateAddress,deleteAddress}
+module.exports = { createOrder, getOerderByVendor, getOerderByUser, getOrderbyId, orderConfirm, userAddress, getAddres, updateAddress, deleteAddress }
