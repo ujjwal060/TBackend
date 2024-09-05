@@ -14,8 +14,13 @@ const notification = async (userId,title, body,deviceToken)=>{
         },
         token:deviceToken
       };
-      const newNoti=new notificationModel(userId,title,body);
-      await newNoti.save();
+
+      const newUser = new notificationModel({
+          userId,
+          body,
+          title,
+      });
+      await newUser.save();
       await admin.messaging().send(message)
       .then((response) => {
         console.log('Successfully sent message:', response);
@@ -28,5 +33,20 @@ const notification = async (userId,title, body,deviceToken)=>{
   }
 };
 
+const getNotification=async(req,res)=>{
+  try{
+    const result=await notificationModel.find({userId:req.params.id})
+    res.json({
+      status:200,
+      msg:"Get all notification",
+      data:result
+    })
+  }catch(error){
+    res.status(500).json({
+      status: 500,
+      error: error.message
+    });
+  }
+}
 
-module.exports={notification}
+module.exports={notification,getNotification}
