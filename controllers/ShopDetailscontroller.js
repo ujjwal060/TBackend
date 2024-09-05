@@ -133,7 +133,7 @@ const getAllShopDetails = async (req, res, next) => {
 
         aggregation.push({
         $match: {
-          distance: { $lte: 1 }
+          distance: { $lte: 40075 }
         }
       });
 
