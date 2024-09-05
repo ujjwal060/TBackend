@@ -60,7 +60,7 @@ const createShopDetails = async (req, res, next) => {
 
 const getAllShopDetails = async (req, res, next) => {
     try {
-      const { search, speciesName } = req.body;
+      const { search, speciesName ,latitude, longitude } = req.body;
 
       let aggregation = [];
   
@@ -99,8 +99,45 @@ const getAllShopDetails = async (req, res, next) => {
           }
         });
       }
-  
-      // Execute the aggregation pipeline
+
+      if (latitude && longitude) {
+        const RADIUS_OF_EARTH = 6371;
+
+        aggregation.push({
+          $addFields: {
+            distance: {
+              $multiply: [
+                RADIUS_OF_EARTH,
+                {
+                  $acos: {
+                    $add: [
+                      { $multiply: [
+                          { $sin: { $divide: [{ $multiply: [latitude, Math.PI] }, 180] } },
+                          { $sin: { $divide: [{ $multiply: ['$latitude', Math.PI] }, 180] } }
+                        ]
+                      },
+                      {
+                        $multiply: [
+                          { $cos: { $divide: [{ $multiply: [latitude, Math.PI] }, 180] } },
+                          { $cos: { $divide: [{ $multiply: ['$latitude', Math.PI] }, 180] } },
+                          { $cos: { $divide: [{ $subtract: [longitude, '$longitude'] }, 180] } }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        });
+
+        aggregation.push({
+        $match: {
+          distance: { $lte: 10 }
+        }
+      });
+
+      }
       const shopDetails = await ShopDetails.aggregate(aggregation);
       res.status(200).json({
           "status":200,
@@ -110,7 +147,7 @@ const getAllShopDetails = async (req, res, next) => {
 
       });
     } catch (error) {
-      res.status(500).json({ message: 'Failed to fetch shop details' });
+      res.status(500).json({msg:error.message });
     }
   };
 

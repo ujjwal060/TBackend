@@ -307,17 +307,21 @@ const getOrderbyId = async (req, res) => {
 const orderConfirm = async (req, res) => {
     try {
         const { id } = req.params;
-        const {status}=req.body;
-        const result = await order.findByIdAndUpdate(id, { status:status}, { new: true });
+        const { status } = req.body;
+        const result = await order.findByIdAndUpdate(id, { status: status }, { new: true });
         const userData = await user.findById(result.userId);
         const shopDetails = await shopmodel.findById(result.shopId);
 
         const confirmationDate = new Date();
         const estimatedDeliveryDate = new Date();
         estimatedDeliveryDate.setDate(confirmationDate.getDate() + 7);
-
+        let body = ''
         const title = `Order ${status}`
-        const body = `Your order has been ${status} by ${shopDetails.shopName}. Your order ID is ${id}. You can track your order status in the app.`
+        if (status == "delivered") {
+            body = `"Congratulations! Your order ${id} has been completed and is ready for pick-up at ${shopDetails.shopName}."`
+        } else {
+            body = `Good news! The ${status} stage for your order${id} has been completed. Stay tuned for further updates.`
+        }
         await notification(title, body, userData.deviceToken)
         await sendConfirmationEmail(result, userData, estimatedDeliveryDate);
 
