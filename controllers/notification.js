@@ -1,10 +1,11 @@
 const admin = require('firebase-admin');
 const serviceAccount =require('../firebase-service-account.json')
+const notificationModel=require('../models/notificationModel')
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
 
-const notification = async (title, body,deviceToken)=>{
+const notification = async (userId,title, body,deviceToken)=>{
   try {
     const message = {
         notification: {
@@ -13,6 +14,8 @@ const notification = async (title, body,deviceToken)=>{
         },
         token:deviceToken
       };
+      const newNoti=new notificationModel(userId,title,body);
+      await newNoti.save();
       await admin.messaging().send(message)
       .then((response) => {
         console.log('Successfully sent message:', response);

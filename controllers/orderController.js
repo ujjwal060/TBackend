@@ -309,7 +309,8 @@ const orderConfirm = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
         const result = await order.findByIdAndUpdate(id, { status: status }, { new: true });
-        const userData = await user.findById(result.userId);
+        const userId=result.userId;
+        const userData = await user.findById(userId);
         const shopDetails = await shopmodel.findById(result.shopId);
 
         const confirmationDate = new Date();
@@ -322,7 +323,7 @@ const orderConfirm = async (req, res) => {
         } else {
             body = `Good news! The ${status} stage for your order${id} has been completed. Stay tuned for further updates.`
         }
-        await notification(title, body, userData.deviceToken)
+        await notification(userId,title, body, userData.deviceToken)
         await sendConfirmationEmail(result, userData, estimatedDeliveryDate);
 
         res.status(200).json({

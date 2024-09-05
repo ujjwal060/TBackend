@@ -57,14 +57,14 @@ const payment = async (req, res) => {
       <p>The Taxidermy Management App Team</p>
       `
       };
-      const title = `payment Resived`
+      const title = `Payment Resived`
       const body = `We have received your payment for order ${book._id}. Thank you! You can track the progress of your order through the app.`
     if(paymentIntent.status ='succeeded'){
       book.paymentStatus='success';
       book.confirmationId=confirmationId;
       await book.save();
       await emailSending(mailDetails)
-      await notification(title,body,deviceToken)
+      await notification(userId,title,body,deviceToken)
     }
     res.json({
       status:200,
