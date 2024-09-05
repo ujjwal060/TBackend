@@ -317,11 +317,16 @@ const orderConfirm = async (req, res) => {
         const estimatedDeliveryDate = new Date();
         estimatedDeliveryDate.setDate(confirmationDate.getDate() + 7);
         let body = ''
-        const title = `Order ${status}`
+        let title = ''
         if (status == "delivered") {
-            body = `"Congratulations! Your order ${id} has been completed and is ready for pick-up at ${shopDetails.shopName}."`
-        } else {
-            body = `Good news! The ${status} stage for your order${id} has been completed. Stay tuned for further updates.`
+            title=`Trophy Completed`
+            body = `Congratulations! Your order ${id} has been completed and is ready for pick-up at ${shopDetails.shopName}.`
+        } else if(status == "confirmed") {
+            title=`In Production`
+            body = `Order is now in production for your order${id}. Stay tuned for further updates.`
+        }else if(status == "shipped") {
+            title=`Detail Work`
+            body = `Detail work for order has started for your order${id}. Stay tuned for further updates.`
         }
         await notification(userId,title, body, userData.deviceToken)
         await sendConfirmationEmail(result, userData, estimatedDeliveryDate);

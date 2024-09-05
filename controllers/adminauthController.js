@@ -1,6 +1,6 @@
 const User = require('../models/adminauthModel');
 const jwt = require('jsonwebtoken');
-
+const { notification } = require('./notification')
 
 const login = async (req, res) => {
   try {
@@ -35,4 +35,26 @@ const logout = async (req, res, next) => {
   }
 };
 
-module.exports = { login,logout };
+const bulkNotification = async (req, res) => {
+  try {
+    const { title, body, role } = req.body;
+    const users = await User.find({ role });
+    const notificationsPromises = users.map(user => {
+      const userId=user._id;
+      const deviceToken=user.deviceToken;
+      return notification(userId, title, body, deviceToken);
+    });
+    await Promise.all(notificationsPromises);
+    res.status(200).json({
+      status: 200,
+      message: 'Notifications sent successfully',
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      error: error.message
+    });
+  }
+}
+
+module.exports = { login, logout, bulkNotification };
