@@ -2,6 +2,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const user=require('../models/Authmodel');
 const order = require("../models/orderModel");
 const shopDetails=require("../models/ShopDetailsmodel")
+const {emailSending}=require('./sendEmail')
 
 const payment = async (req, res) => {
   const { amount,tokenid,bookingId,confirmationId } = req.body;
@@ -11,7 +12,9 @@ const payment = async (req, res) => {
   try {
     const book=await order.findOne({bookingId:bookingId});
     const userId = book.userId;
+    const vendorId=book.vendorId;
     const users=await user.findById(userId);
+    const vendor=await user.findById(vendorId);
     const customer = await stripe.customers.create({
       email: users.email,
     });
@@ -28,10 +31,36 @@ const payment = async (req, res) => {
       off_session: true,
       confirm: true,
     });
+
+    const mailDetails = {
+      from: process.env.EMAIL_USER,
+      to: users.email,
+      subject: `Your Order Confirmation - ${book.confirmationId}`,
+      html: `
+      <p>Hi ${users.name},</p>
+      <p>Thank you for your order with Taxidermy Management! We're excited to help you with your appointment. Below are the
+        details of your order:</p>
+      <ul>
+        <li><strong>Order ID:</strong> ${book._id}</li>
+        <li><strong>Booking ID:</strong> ${book.bookingId}</li>
+        <li><strong>Vendor Name:</strong> ${vendor.name}</li>
+        <li><strong>Order Date:</strong> ${book.orderDate}</li>
+        <li><strong>Amount:</strong> ${book.totalAmount}</li>
+        <li><strong>Payment Status:</strong> ${book.paymentStatus}</li>
+      </ul>
+      <p>Your appointment is confirmed with ${vendor.name}. If you need to reschedule or have any questions, please
+        don't hesitate to contact us at <a href="mailto:hunt30@gmail.com">hunt30@gmail.com</a>.</p>
+      <p>We appreciate your trust in us and look forward to serving you!</p>
+      <p>Best regards,</p>
+      <p>The Taxidermy Management App Team</p>
+      `
+      };
+
     if(paymentIntent.status ='succeeded'){
       book.paymentStatus='success';
       book.confirmationId=confirmationId;
       await book.save();
+      await emailSending(mailDetails)
     }
     res.json({
       status:200,
@@ -211,8 +240,6 @@ const getSubscriptionDetails = async (req, res) => {
     });
   }
 };
-
-
 
 
 module.exports = { payment,SubscriptionPayment,getSubscriptionDetails }
