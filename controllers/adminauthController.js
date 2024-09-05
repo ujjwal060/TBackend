@@ -1,10 +1,5 @@
 const User = require('../models/adminauthModel');
-const createError = require('../middleware/error');
-const createSuccess = require('../middleware/success');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
-const bcrypt = require('bcrypt');
-const validator = require('validator');
 
 
 const login = async (req, res) => {
