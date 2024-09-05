@@ -23,9 +23,7 @@ const createShopDetails = async (req, res, next) => {
       ownerEmail,
       contactNumber,
       availableFrom,
-      availableFromPeriod,
       availableTo,
-      availableToPeriod,
       address,
       vendorId,
       latitude,
@@ -41,9 +39,7 @@ const createShopDetails = async (req, res, next) => {
       ownerEmail,
       contactNumber,
       availableFrom,
-      availableFromPeriod,
       availableTo,
-      availableToPeriod,
       shopLogo,
       address,
       latitude,
@@ -168,5 +164,5 @@ const getAllShopDetails = async (req, res, next) => {
   getShopDetailsById,
   deleteShop,
   verifyShopByAdmin,
-  upload, // Exporting multer instance for use in routes
+  upload,
 };

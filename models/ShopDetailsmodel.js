@@ -23,18 +23,8 @@ const ShopDetailsSchema = new mongoose.Schema({
   availableFrom: {
     type: String,
   },
-  availableFromPeriod: {
-    type: String,
-    enum: ['AM', 'PM'],
-    default: 'AM',
-  },
   availableTo: {
     type: String,
-  },
-  availableToPeriod: {
-    type: String,
-    enum: ['AM', 'PM'],
-    default: 'PM',
   },
   shopLogo: {
     type: String, 
