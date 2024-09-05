@@ -12,6 +12,7 @@ router.delete("/delete/:id", Authcontroller.deleteAuth);
 //routes(public)
 router.post("/Register", Authcontroller.register);
 router.post("/Login", Authcontroller.login);
+router.post("/logout/:id", Authcontroller.logout);
 router.post("/send-email", Authcontroller.sendEmail);
 router.post("/verify-otp", Authcontroller.verifyOTP);
 router.post("/reset-password", Authcontroller.ResetPassword);
