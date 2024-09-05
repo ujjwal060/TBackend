@@ -12,5 +12,6 @@ router.delete('/deleteSpecies/:id',SpeciesSelectcontroller.deleteSpecies);
 router.post('/SpeciesCategories', upload.single('image'), SpeciesSelectcontroller.addSpeciesCategories);
 router.get('/getSpeciesCategories/',SpeciesSelectcontroller.getSpeciesCategories);
 router.put('/species/:id', upload.single('image'), SpeciesSelectcontroller.editSpecies);
+router.put('/speciescategory/:id', upload.single('image'), SpeciesSelectcontroller.editSpeciesCategory);
 
 module.exports = router;
