@@ -3,6 +3,7 @@ const user=require('../models/Authmodel');
 const order = require("../models/orderModel");
 const shopDetails=require("../models/ShopDetailsmodel")
 const {emailSending}=require('./sendEmail')
+const {notification}=require('./notification')
 
 const payment = async (req, res) => {
   const { amount,tokenid,bookingId,confirmationId } = req.body;
@@ -14,6 +15,7 @@ const payment = async (req, res) => {
     const userId = book.userId;
     const vendorId=book.vendorId;
     const users=await user.findById(userId);
+    const deviceToken=users.deviceToken;
     const vendor=await user.findById(vendorId);
     const customer = await stripe.customers.create({
       email: users.email,
@@ -35,7 +37,7 @@ const payment = async (req, res) => {
     const mailDetails = {
       from: process.env.EMAIL_USER,
       to: users.email,
-      subject: `Your Order Confirmation - ${book.confirmationId}`,
+      subject: `Your Order Confirmation - ${confirmationId}`,
       html: `
       <p>Hi ${users.name},</p>
       <p>Thank you for your order with Taxidermy Management! We're excited to help you with your appointment. Below are the
@@ -55,12 +57,14 @@ const payment = async (req, res) => {
       <p>The Taxidermy Management App Team</p>
       `
       };
-
+      const title = `payment Resived`
+      const body = `We have received your payment for order ${book._id}. Thank you! You can track the progress of your order through the app.`
     if(paymentIntent.status ='succeeded'){
       book.paymentStatus='success';
       book.confirmationId=confirmationId;
       await book.save();
       await emailSending(mailDetails)
+      await notification(title,body,deviceToken)
     }
     res.json({
       status:200,
@@ -77,7 +81,6 @@ const payment = async (req, res) => {
     });
   }
 };
-
 
 const SubscriptionPayment = async (req, res) => {
   const { amount, tokenid, shopId,planType } = req.body;
