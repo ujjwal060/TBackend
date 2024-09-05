@@ -35,7 +35,7 @@ const feedbacks = async (req, res) => {
         const savedFeedback = await newFeedback.save();
         res.json({
             status: 200,
-            msg: "Thanks For Your Valuable FeedBack",
+            msg: "Thanks For Your Valuable Feedback",
             data: []
         })
     } catch (error) {
