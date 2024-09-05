@@ -9,16 +9,15 @@ const getVendor = async (req, res) => {
     const { status, search } = req.body;
     let aggregation = [];
 
-    if (status == 'ALL') {
+    aggregation.push({
+      $match: {
+        role: "vendor"
+      }
+    });
+
+    if (status && status !== 'ALL') {
       aggregation.push({
         $match: {
-          role: "vendor"
-        }
-      });
-    } else {
-      aggregation.push({
-        $match: {
-          role: "vendor",
           status: status
         }
       });
@@ -31,6 +30,7 @@ const getVendor = async (req, res) => {
         }
       });
     }
+    
     const result = await user.aggregate(aggregation);
     res.json({
       msg: 'get all vendor',
