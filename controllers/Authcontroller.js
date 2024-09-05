@@ -232,6 +232,20 @@ const deleteAuth = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  try {
+   const {id}=req.params;
+   const result=await user.findById(id);
+   result.deviceToken='';
+   await result.save();
+   res.status(200).json({
+    status:200,
+    msg:"Logout Successfully"
+   })
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 module.exports = {
   register,
   login,
@@ -241,4 +255,5 @@ module.exports = {
   getAuth,
   updateAuth,
   deleteAuth,
+  logout
 };
