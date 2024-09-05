@@ -152,6 +152,37 @@ const editSpecies = async (req, res) => {
   }
 };
 
+
+const editSpeciesCategory = async (req, res) => {
+  try {
+    const { id } = req.params; // Get species ID from the request parameters
+    const updateData = req.body; // Get the updated data from the request body
+
+    // If a new image is uploaded, update the image field
+    if (req.file) {
+      updateData.image = req.file.path;
+    }
+
+    // Find the species by ID and update with new data
+    const updatedSpecies = await SpeciesCategories.findByIdAndUpdate(id, updateData);
+
+    if (!updatedSpecies) {
+      return res.status(404).json({ message: 'Species category not found' });
+    }
+
+    res.status(200).json({
+      status: 200,
+      message: 'Species category updated successfully',
+      data: updatedSpecies,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 500,
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   addSpecies,
   getSpeciesById,
@@ -159,5 +190,6 @@ module.exports = {
   addSpeciesCategories,
   getSpeciesCategories,
   upload,
-  editSpecies
+  editSpecies,
+  editSpeciesCategory
 };
