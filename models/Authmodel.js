@@ -7,7 +7,7 @@ const authSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
   password: { type: String, required: true },
-  contactNumber:{type:String,require:true},
+  contactNumber:{type:String,require:false},
   otp: { type: String },
   otpExpiration: { type: Date },
   role:{ enum:['user','vendor'],
