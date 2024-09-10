@@ -140,7 +140,7 @@ const getOerderByVendor = async (req, res) => {
 const getOerderByUser = async (req, res) => {
     try {
         const { userId } = req.params;
-        const orders = await order.find({ userId: userId }).lean();
+        const orders = await order.find({ userId: userId ,paymentStatus:'success'}).lean();
 
         const userIds = [...new Set(orders.map(order => order.userId))];
         const shopIds = [...new Set(orders.map(order => order.shopId))];
