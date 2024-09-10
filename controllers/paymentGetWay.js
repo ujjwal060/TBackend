@@ -68,7 +68,7 @@ const payment = async (req, res) => {
     }
     res.json({
       status:200,
-      msg:"Payment Successfull",
+      msg:"Payment Successful",
       data:{
         amount,
         bookingId
