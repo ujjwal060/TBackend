@@ -57,7 +57,7 @@ const payment = async (req, res) => {
       <p>The Taxidermy Management App Team</p>
       `
       };
-      const title = `Payment Resived`
+      const title = `Payment Received`
       const body = `We have received your payment for order ${book._id}. Thank you! You can track the progress of your order through the app.`
     if(paymentIntent.status ='succeeded'){
       book.paymentStatus='success';
