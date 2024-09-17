@@ -361,8 +361,9 @@ const sendConfirmationEmail = async (order, user) => {
             Total Amount: $${order.totalAmount}
             Booking ID: ${order.bookingId}
             Status: ${order.status}
+            Confirmation Id:${order.confirmationId}
 
-            You will receive a notification once your order moves to the next stage of the process.
+            You will be notified once your order progresses to the next stage.
 
             Thank you for shopping with us!
 
@@ -373,7 +374,7 @@ const sendConfirmationEmail = async (order, user) => {
         let mailOptions = {
             from: process.env.EMAIL_USER,
             to: user.email,
-            subject: 'Order Confirmation',
+            subject: 'Order Status Update',
             text: mailContent
         };
 
