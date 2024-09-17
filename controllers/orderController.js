@@ -341,7 +341,7 @@ const orderConfirm = async (req, res) => {
     }
 }
 
-const sendConfirmationEmail = async (order, user, estimatedDeliveryDate) => {
+const sendConfirmationEmail = async (order, user) => {
     try {
         let transporter = nodemailer.createTransport({
             service: "gmail",
@@ -354,12 +354,13 @@ const sendConfirmationEmail = async (order, user, estimatedDeliveryDate) => {
         const mailContent = `
             Dear ${user.name},
 
-            Your order with ID ${order._id} has been confirmed. Here are the details of your order:
+            Your order with ID ${order._id} has been ${order.status}. Here are the details of your order:
 
             Order Date: ${order.orderDate.toDateString()}
             Payment Status: ${order.paymentStatus}
             Total Amount: $${order.totalAmount}
             Booking ID: ${order.bookingId}
+            Status: ${order.status}
 
             You will receive a notification once your order moves to the next stage of the process.
 
