@@ -51,7 +51,7 @@ const payment = async (req, res) => {
         <li><strong>Payment Status:</strong> ${book.paymentStatus}</li>
       </ul>
       <p>Your appointment is confirmed with ${vendor.name}. If you need to reschedule or have any questions, please
-        don't hesitate to contact us at <a href="mailto:hunt30@gmail.com">hunt30@gmail.com</a>.</p>
+        don't hesitate to contact us at <a href="mailto:hunt30apps@gmail.com">hunt30apps@gmail.com</a>.</p>
       <p>We appreciate your trust in us and look forward to serving you!</p>
       <p>Best regards,</p>
       <p>The Taxidermy Management App Team</p>
