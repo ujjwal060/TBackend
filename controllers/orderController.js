@@ -366,7 +366,7 @@ const sendConfirmationEmail = async (order, user, estimatedDeliveryDate) => {
 
             Estimated Delivery Date: ${estimatedDeliveryDate.toDateString()}
 
-            Your order will be delivered within 7 days from today.
+            You will receive a notification once your order moves to the next stage of the process.
 
             Thank you for shopping with us!
 
