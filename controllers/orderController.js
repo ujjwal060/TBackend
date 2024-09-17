@@ -313,9 +313,6 @@ const orderConfirm = async (req, res) => {
         const userData = await user.findById(userId);
         const shopDetails = await shopmodel.findById(result.shopId);
 
-        const confirmationDate = new Date();
-        const estimatedDeliveryDate = new Date();
-        estimatedDeliveryDate.setDate(confirmationDate.getDate() + 7);
         let body = ''
         let title = ''
         if (status == "delivered") {
@@ -329,7 +326,7 @@ const orderConfirm = async (req, res) => {
             body = `Detail work for order has started for your order${id}. Stay tuned for further updates.`
         }
         await notification(userId,title, body, userData.deviceToken)
-        await sendConfirmationEmail(result, userData, estimatedDeliveryDate);
+        await sendConfirmationEmail(result, userData);
 
         res.status(200).json({
             status: 200,
@@ -363,8 +360,6 @@ const sendConfirmationEmail = async (order, user, estimatedDeliveryDate) => {
             Payment Status: ${order.paymentStatus}
             Total Amount: $${order.totalAmount}
             Booking ID: ${order.bookingId}
-
-            Estimated Delivery Date: ${estimatedDeliveryDate.toDateString()}
 
             You will receive a notification once your order moves to the next stage of the process.
 
