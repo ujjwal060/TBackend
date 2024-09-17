@@ -354,7 +354,7 @@ const sendConfirmationEmail = async (order, user) => {
         const mailContent = `
             Dear ${user.name},
 
-            Your order with ID ${order._id} has been confirmed. Here are the details of your order:
+            Your order with ID ${order._id} has been ${order.status}. Here are the details of your order:
 
             Order Date: ${order.orderDate.toDateString()}
             Payment Status: ${order.paymentStatus}
