@@ -326,7 +326,7 @@ const orderConfirm = async (req, res) => {
             body = `Detail work for order has started for your order${id}. Stay tuned for further updates.`
         }
         await notification(userId,title, body, userData.deviceToken)
-        await sendConfirmationEmail(result, userData);
+        await sendConfirmationEmail(result, userData,shopDetails);
 
         res.status(200).json({
             status: 200,
@@ -341,7 +341,7 @@ const orderConfirm = async (req, res) => {
     }
 }
 
-const sendConfirmationEmail = async (order, user) => {
+const sendConfirmationEmail = async (order, user,shopDetails) => {
     try {
         let transporter = nodemailer.createTransport({
             service: "gmail",
@@ -363,12 +363,13 @@ const sendConfirmationEmail = async (order, user) => {
             Status: ${order.status}
             Confirmation Id:${order.confirmationId}
 
-            You will be notified once your order progresses to the next stage.
+            Your order is being processed by ${shopDetails.shopName}.
+            You will be notified when your order progresses to the next stage.
 
-            Thank you for shopping with us!
+            Thank you for shopping with ${shopDetails.shopName}!
 
             Best regards,
-            Your Shop Team
+            ${shopDetails.shopName} Team
         `;
 
         let mailOptions = {
