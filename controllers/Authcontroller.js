@@ -27,6 +27,22 @@ const register = async (req, res, next) => {
     });
     if (req.body.role === 'vendor') {
       newUser.status = 'pending'
+      const adminMailDetails = {
+        from: process.env.EMAIL_USER,
+        to: process.env.EMAIL_USER,
+        subject: "New Vendor Registration - Approval Needed",
+        html: `
+          <p>Hi Admin,</p>
+          <p>A new vendor has registered and is awaiting approval:</p>
+          <p><strong>Name:</strong> ${req.body.name}</p>
+          <p><strong>Email:</strong> ${req.body.email}</p>
+          <p><strong>Contact Number:</strong> ${req.body.mobileNumber}</p>
+          <p>Please review their details and approve them in the admin panel.</p>
+          <p>Best,</p>
+          <p>Your App Team</p>
+        `
+      };
+      await emailSending(adminMailDetails);
     }
     if(req.body.role==='user'){
       newUser.treamsCon=req.body.treamsCon;
@@ -38,7 +54,7 @@ const register = async (req, res, next) => {
         html: `
           <p>Hi ${req.body.name},</p>
           <p>Thank you for signing up for Taxidermy Management! We're excited to have you on board.</p>
-          <p>Explore our features, connect with fellow enthusiasts, and dive into the world of taxidermy. If you need any help, feel free to reach out to our support team at <a href="mailto:hunt30@gmail.com">hunt30@gmail.com</a>.</p>
+          <p>Explore our features, connect with fellow enthusiasts, and dive into the world of taxidermy. If you need any help, feel free to reach out to our support team at <a href="mailto:hunt30apps@gmail.com">hunt30apps@gmail.com</a>.</p>
           <p>Enjoy your journey with us!</p>
           <p>Best,</p>
           <p>The Taxidermy Management App Team</p>
@@ -126,7 +142,7 @@ const sendEmail = async (req, res, next) => {
       <p>We received a request to reset your password for your Taxidermy Management account. Use the One-Time Password (OTP) below to reset your password:</p>
       <p>Your OTP: <strong>${otp}</strong></p>
       <p>This OTP is valid for the next 10 minutes. If you didn't request a password reset, please ignore this email.</p>
-      <p>If you need any assistance, feel free to contact our support team at <a href="mailto:hunt30@gmail.com">hunt30@gmail.com</a>.</p>
+      <p>If you need any assistance, feel free to contact our support team at <a href="mailto:hunt30apps@gmail.com">hunt30apps@gmail.com</a>.</p>
       <p>Thank you,</p>
       <p>The Taxidermy Management App Team</p>
     `

@@ -140,7 +140,7 @@ const getOerderByVendor = async (req, res) => {
 const getOerderByUser = async (req, res) => {
     try {
         const { userId } = req.params;
-        const orders = await order.find({ userId: userId ,paymentStatus:'success'}).lean();
+        const orders = await order.find({ userId: userId, paymentStatus: 'success' }).lean();
 
         const userIds = [...new Set(orders.map(order => order.userId))];
         const shopIds = [...new Set(orders.map(order => order.shopId))];
@@ -309,27 +309,24 @@ const orderConfirm = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
         const result = await order.findByIdAndUpdate(id, { status: status }, { new: true });
-        const userId=result.userId;
+        const userId = result.userId;
         const userData = await user.findById(userId);
         const shopDetails = await shopmodel.findById(result.shopId);
 
-        const confirmationDate = new Date();
-        const estimatedDeliveryDate = new Date();
-        estimatedDeliveryDate.setDate(confirmationDate.getDate() + 7);
         let body = ''
         let title = ''
         if (status == "delivered") {
-            title=`Trophy Completed`
+            title = `Trophy Completed`
             body = `Congratulations! Your order ${id} has been completed and is ready for pick-up at ${shopDetails.shopName}.`
-        } else if(status == "confirmed") {
-            title=`In Production`
+        } else if (status == "confirmed") {
+            title = `In Production`
             body = `Order is now in production for your order${id}. Stay tuned for further updates.`
-        }else if(status == "shipped") {
-            title=`Detail Work`
+        } else if (status == "shipped") {
+            title = `Detail Work`
             body = `Detail work for order has started for your order${id}. Stay tuned for further updates.`
         }
-        await notification(userId,title, body, userData.deviceToken)
-        await sendConfirmationEmail(result, userData, estimatedDeliveryDate);
+        await notification(userId, title, body, userData.deviceToken)
+        await sendConfirmationEmail(result, userData, shopDetails);
 
         res.status(200).json({
             status: 200,
@@ -344,7 +341,7 @@ const orderConfirm = async (req, res) => {
     }
 }
 
-const sendConfirmationEmail = async (order, user, estimatedDeliveryDate) => {
+const sendConfirmationEmail = async (order, user, shopDetails) => {
     try {
         let transporter = nodemailer.createTransport({
             service: "gmail",
@@ -357,27 +354,28 @@ const sendConfirmationEmail = async (order, user, estimatedDeliveryDate) => {
         const mailContent = `
             Dear ${user.name},
 
-            Your order with ID ${order._id} has been confirmed. Here are the details of your order:
+            Your order with ID ${order._id} has been ${order.status}. Here are the details of your order:
 
             Order Date: ${order.orderDate.toDateString()}
             Payment Status: ${order.paymentStatus}
             Total Amount: $${order.totalAmount}
             Booking ID: ${order.bookingId}
+            Status: ${order.status}
+            Confirmation Id:${order.confirmationId}
 
-            Estimated Delivery Date: ${estimatedDeliveryDate.toDateString()}
+            Your order is being processed by ${shopDetails.shopName}.
+            You will be notified when your order progresses to the next stage.
 
-            Your order will be delivered within 7 days from today.
-
-            Thank you for shopping with us!
+            Thank you for shopping with ${shopDetails.shopName}!
 
             Best regards,
-            Your Shop Team
+            ${shopDetails.shopName} Team
         `;
 
         let mailOptions = {
             from: process.env.EMAIL_USER,
             to: user.email,
-            subject: 'Order Confirmation',
+            subject: 'Order Status Update',
             text: mailContent
         };
 
@@ -451,4 +449,40 @@ const deleteAddress = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
-module.exports = { createOrder, getOerderByVendor, getOerderByUser, getOrderbyId, orderConfirm, userAddress, getAddres, updateAddress, deleteAddress }
+
+const getOrderSummary = async (req, res) => {
+    try {
+        const { vendorId } = req.params;
+        const { startDate, endDate } = req.body;
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        const orders = await order.find({
+            vendorId: vendorId,
+            orderDate: {
+                $gte: start,
+                $lte: end
+            }
+        });
+
+        const totalSales = orders.reduce((acc, order) => acc + order.totalAmount, 0);
+        const completedSales = orders.filter(order => order.status === 'delivered')
+            .reduce((acc, order) => acc + order.totalAmount, 0);
+        const statusCounts = {
+            Pending: orders.filter(order => order.status === 'pending').length,
+            Shipping: orders.filter(order => order.status === 'shipping').length,
+            Confirmed: orders.filter(order => order.status === 'confirmed').length,
+            Delivered: orders.filter(order => order.status === 'delivered').length,
+        };
+
+        res.status(200).json({
+            statusCounts,
+            totalSales,
+            completedSales,
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching order data', error });
+    }
+};
+
+module.exports = { createOrder, getOerderByVendor, getOerderByUser, getOrderbyId, orderConfirm, userAddress, getAddres, updateAddress, deleteAddress, getOrderSummary }

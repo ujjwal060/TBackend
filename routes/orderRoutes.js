@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const {createOrder,userAddress,getOerderByVendor ,getOerderByUser,getOrderbyId,orderConfirm,getAddres,updateAddress,deleteAddress}=require('../controllers/orderController');
+const {createOrder,userAddress,getOerderByVendor ,getOerderByUser,getOrderbyId,orderConfirm,getAddres,updateAddress,deleteAddress,getOrderSummary}=require('../controllers/orderController');
 
 router.post('/order',createOrder);
 router.get('/getOrder/:vendorId',getOerderByVendor);
@@ -12,5 +12,6 @@ router.post('/address',userAddress);
 router.get('/address/:userId',getAddres);
 router.put('/address/:userId',updateAddress);
 router.delete('/address/:userId/:addressId',deleteAddress);
+router.post('/summary/:vendorId',getOrderSummary);
 
 module.exports = router;
