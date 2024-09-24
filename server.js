@@ -51,17 +51,17 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Routes
-app.use("/auths", Authroutes);
-app.use("/admin", adminauthRoute);
-app.use("/ShopDetails", ShopDetailsroute);
-app.use("/vendor", vendorRoute);
-app.use("/species", SpeciesSelectroute);
-app.use("/Extension", Extensionroute);
-app.use("/", order);
-app.use('/',payment );
-app.use('/',user );
-app.use('/',subscription );
-app.use('/',contactUs );
+app.use("/api/auths", Authroutes);
+app.use("/api/admin", adminauthRoute);
+app.use("/api/ShopDetails", ShopDetailsroute);
+app.use("/api/vendor", vendorRoute);
+app.use("/api/species", SpeciesSelectroute);
+app.use("/api/Extension", Extensionroute);
+app.use("/api/", order);
+app.use('/api/',payment );
+app.use('/api/',user );
+app.use('/api/',subscription );
+app.use('/api/',contactUs );
 
 
 
