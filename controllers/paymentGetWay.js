@@ -60,7 +60,6 @@ const payment = async (req, res) => {
     const title = `Payment Received`
     const body = `We have received your payment for order ${book._id}. Thank you! You can track the progress of your order through the app.`
     if (paymentIntent.status = 'succeeded') {
-      console.log(parseFloat(amount))
       book.paidAmount = parseFloat(amount);
       book.remainingAmount = book.totalAmount - book.paidAmount;
 
@@ -69,7 +68,6 @@ const payment = async (req, res) => {
       } else {
         book.paymentStatus = 'partiallyPaid';
       }
-      book.paymentStatus = 'success';
       book.confirmationId = confirmationId;
       await book.save();
       await emailSending(mailDetails)
