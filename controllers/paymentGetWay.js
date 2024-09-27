@@ -1,22 +1,22 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const user=require('../models/Authmodel');
+const user = require('../models/Authmodel');
 const order = require("../models/orderModel");
-const shopDetails=require("../models/ShopDetailsmodel")
-const {emailSending}=require('./sendEmail')
-const {notification}=require('./notification')
+const shopDetails = require("../models/ShopDetailsmodel")
+const { emailSending } = require('./sendEmail')
+const { notification } = require('./notification')
 
 const payment = async (req, res) => {
-  const { amount,tokenid,bookingId,confirmationId } = req.body;
-  if (!tokenid || !bookingId || !amount,!confirmationId) {
+  const { amount, tokenid, bookingId, confirmationId } = req.body;
+  if (!tokenid || !bookingId || !amount, !confirmationId) {
     return res.status(400).send({ error: "Missing required parameters" });
   }
   try {
-    const book=await order.findOne({bookingId:bookingId});
+    const book = await order.findOne({ bookingId: bookingId });
     const userId = book.userId;
-    const vendorId=book.vendorId;
-    const users=await user.findById(userId);
-    const deviceToken=users.deviceToken;
-    const vendor=await user.findById(vendorId);
+    const vendorId = book.vendorId;
+    const users = await user.findById(userId);
+    const deviceToken = users.deviceToken;
+    const vendor = await user.findById(vendorId);
     const customer = await stripe.customers.create({
       email: users.email,
     });
@@ -56,20 +56,28 @@ const payment = async (req, res) => {
       <p>Best regards,</p>
       <p>The Taxidermy Management App Team</p>
       `
-      };
-      const title = `Payment Received`
-      const body = `We have received your payment for order ${book._id}. Thank you! You can track the progress of your order through the app.`
-    if(paymentIntent.status ='succeeded'){
-      book.paymentStatus='success';
-      book.confirmationId=confirmationId;
+    };
+    const title = `Payment Received`
+    const body = `We have received your payment for order ${book._id}. Thank you! You can track the progress of your order through the app.`
+    if (paymentIntent.status = 'succeeded') {
+      book.paidAmount += parseFloat(amount);
+      book.remainingAmount = book.totalAmount - book.paidAmount;
+
+      if (book.paidAmount = book.totalAmount) {
+        book.paymentStatus = 'success';
+      } else {
+        book.paymentStatus = 'partiallyPaid';
+      }
+      book.paymentStatus = 'success';
+      book.confirmationId = confirmationId;
       await book.save();
       await emailSending(mailDetails)
-      await notification(userId,title,body,deviceToken)
+      await notification(userId, title, body, deviceToken)
     }
     res.json({
-      status:200,
-      msg:"Payment Successful",
-      data:{
+      status: 200,
+      msg: "Payment Successful",
+      data: {
         amount,
         bookingId
       }
@@ -83,12 +91,12 @@ const payment = async (req, res) => {
 };
 
 const SubscriptionPayment = async (req, res) => {
-  const { amount, tokenid, shopId,planType } = req.body;
+  const { amount, tokenid, shopId, planType } = req.body;
   if (!tokenid || !shopId || !amount) {
     return res.status(400).send({ error: "Missing required parameters" });
   }
   try {
-    const shop = await shopDetails.findOne({_id:shopId});
+    const shop = await shopDetails.findOne({ _id: shopId });
     if (!shop) {
       return res.status(404).send({ error: "Shop not found" });
     }
@@ -115,13 +123,13 @@ const SubscriptionPayment = async (req, res) => {
       shop.isSubscription = true;
       shop.paymentStatus = 'Completed';
       shop.planExpiryDate = calculatePlanExpiryDate(planType);
-      shop.subscriptionPlan=planType,
-      shop.isSubscriptionExpired=false,
-      shop.paymentHistory.push({
-        paymentDate: new Date(),
-        amountPaid: parseFloat(amount),
-        transactionId: paymentIntent.id
-      });
+      shop.subscriptionPlan = planType,
+        shop.isSubscriptionExpired = false,
+        shop.paymentHistory.push({
+          paymentDate: new Date(),
+          amountPaid: parseFloat(amount),
+          transactionId: paymentIntent.id
+        });
       await shop.save();
     }
 
@@ -130,7 +138,7 @@ const SubscriptionPayment = async (req, res) => {
       msg: "Payment Successful",
       data: {
         amount,
-        paymentStatus:paymentIntent.status
+        paymentStatus: paymentIntent.status
       },
     });
   } catch (err) {
@@ -202,16 +210,16 @@ const getSubscriptionDetails = async (req, res) => {
           'paymentHistory.transactionId': payment.id
         }).lean();
 
-        const vendor=await user.findById(shopDetail.vendorId).lean();
-          shopDetailsAll = {
-            shopName: shopDetail.shopName || null,
-            ownerName: shopDetail.ownerName || null,
-            contactNumber: shopDetail.contactNumber || null,
-            subscriptionPlan: shopDetail.subscriptionPlan || null,
-            vendorName: vendor.name || null,
-            vendorContact: vendor.contactNumber || null,
-            vendorEmail: vendor.email || null,
-          };
+        const vendor = await user.findById(shopDetail.vendorId).lean();
+        shopDetailsAll = {
+          shopName: shopDetail.shopName || null,
+          ownerName: shopDetail.ownerName || null,
+          contactNumber: shopDetail.contactNumber || null,
+          subscriptionPlan: shopDetail.subscriptionPlan || null,
+          vendorName: vendor.name || null,
+          vendorContact: vendor.contactNumber || null,
+          vendorEmail: vendor.email || null,
+        };
       } catch (err) {
         console.error('Error retrieving shop details:', err);
       }
@@ -245,4 +253,4 @@ const getSubscriptionDetails = async (req, res) => {
 };
 
 
-module.exports = { payment,SubscriptionPayment,getSubscriptionDetails }
+module.exports = { payment, SubscriptionPayment, getSubscriptionDetails }
