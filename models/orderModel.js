@@ -16,7 +16,7 @@ const orderSchema = new Schema({
     orderDate: { type: Date, default: Date.now },
     paymentStatus: { type: String, enum: ['pending', 'success','partiallyPaid', 'cancelled'], default: 'pending' },
     paidAmount: { type: Number, default: 0 },
-    remainingAmount: { type: Number, default: function() { return this.totalAmount; } },
+    remainingAmount: { type: Number, default:0 },
     totalAmount: { type: Number, required: true },
     bookingId: { type: String, required: true, unique: true } ,
     trackingInfo: {
