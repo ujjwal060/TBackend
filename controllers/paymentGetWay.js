@@ -60,7 +60,8 @@ const payment = async (req, res) => {
     const title = `Payment Received`
     const body = `We have received your payment for order ${book._id}. Thank you! You can track the progress of your order through the app.`
     if (paymentIntent.status = 'succeeded') {
-      book.paidAmount += parseFloat(amount);
+      console.log(parseFloat(amount))
+      book.paidAmount = parseFloat(amount);
       book.remainingAmount = book.totalAmount - book.paidAmount;
 
       if (book.paidAmount = book.totalAmount) {
