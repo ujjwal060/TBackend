@@ -54,7 +54,7 @@ const createOrder = async (req, res) => {
 const getOerderByVendor = async (req, res) => {
     try {
         const { vendorId } = req.params;
-        const orders = await order.find({ vendorId: vendorId, paymentStatus: 'success' }).lean();
+        const orders = await order.find({ vendorId: vendorId, paymentStatus: { $in: ['success', 'partiallyPaid'] } }).lean();
 
         const userIds = [...new Set(orders.map(order => order.userId))];
         const shopIds = [...new Set(orders.map(order => order.shopId))];
@@ -142,7 +142,7 @@ const getOerderByVendor = async (req, res) => {
 const getOerderByUser = async (req, res) => {
     try {
         const { userId } = req.params;
-        const orders = await order.find({ userId: userId, paymentStatus: 'success' }).lean();
+        const orders = await order.find({ userId: userId, paymentStatus: { $in: ['success', 'partiallyPaid'] }  }).lean();
 
         const userIds = [...new Set(orders.map(order => order.userId))];
         const shopIds = [...new Set(orders.map(order => order.shopId))];
