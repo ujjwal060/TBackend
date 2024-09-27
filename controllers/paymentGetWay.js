@@ -64,7 +64,7 @@ const payment = async (req, res) => {
       book.paidAmount = parseFloat(amount);
       book.remainingAmount = book.totalAmount - book.paidAmount;
 
-      if (book.paidAmount = book.totalAmount) {
+      if (book.paidAmount == book.totalAmount) {
         book.paymentStatus = 'success';
       } else {
         book.paymentStatus = 'partiallyPaid';
